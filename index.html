@@ -1,650 +1,203 @@
-<meta charset="utf-8">
-<title>Trial Lesson — with Nanda</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --ink:#1B2A33;
-  --paper:#FBF7F1;
-  --coral:#F26B5B;
-  --amber:#F2B138;
-  --teal:#1F8A82;
-  --violet:#6C63C9;
-  --muted:#7C8B94;
-  --line:#E4DCD1;
-  --pw:300px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#0E1519;font-family:'Outfit',system-ui,sans-serif;overflow:hidden}
-#viewport{position:fixed;top:0;left:0;bottom:0;right:0;display:flex;align-items:center;justify-content:center;transition:right .28s ease}
-body.notes #viewport{right:var(--pw);justify-content:flex-start;padding-left:10px}
-body.notes #stage{transform-origin:left center}
-#stage{width:1600px;height:900px;flex:none;position:relative;transform-origin:center center;border-radius:22px;overflow:hidden;background:var(--paper);box-shadow:0 40px 120px rgba(0,0,0,.55)}
-.slide{position:absolute;inset:0;padding:78px 96px;display:none;flex-direction:column;color:var(--ink);animation:in .45s ease both}
-.slide.on{display:flex}
-.fitwrap{display:flex;flex-direction:column;flex:1;width:100%;transform-origin:top center}
-@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-
-h1{font-family:'Fraunces',serif;font-size:104px;line-height:1.02;font-weight:700;letter-spacing:-.02em}
-h2{font-family:'Fraunces',serif;font-size:70px;line-height:1.05;font-weight:700;letter-spacing:-.015em;margin-bottom:10px}
-.sub{font-size:32px;color:var(--muted);font-weight:400;margin-top:14px;max-width:1180px;line-height:1.35}
-.kicker{font-size:28px;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);font-weight:600;margin-bottom:24px}
-.mark{background:linear-gradient(180deg,transparent 62%,rgba(242,177,56,.55) 62%)}
-.c-coral{color:var(--coral)} .c-teal{color:var(--teal)} .c-violet{color:var(--violet)} .c-amber{color:var(--amber)}
-
-/* decorative */
-.blob{position:absolute;border-radius:50%;filter:blur(2px);opacity:.9;pointer-events:none}
-
-/* nav */
-#dots{position:absolute;bottom:26px;left:0;right:0;display:flex;gap:7px;justify-content:center;z-index:50}
-#dots i{width:7px;height:7px;border-radius:50%;background:#D8CFC2;cursor:pointer;transition:.2s}
-#dots i.on{background:var(--coral);width:26px;border-radius:4px}
-.arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:50;width:52px;height:52px;border-radius:50%;border:none;background:rgba(27,42,51,.06);color:var(--ink);font-size:22px;cursor:pointer;transition:.2s}
-.arrow:hover{background:rgba(242,107,91,.16)}
-#prev{left:16px} #next{right:16px}
-
-/* generic cards */
-.grid{display:grid;gap:22px;margin-top:34px}
-.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
-.card{background:#fff;border:2px solid var(--line);border-radius:20px;padding:28px 30px;font-size:30px;line-height:1.3;transition:.18s;cursor:default}
-.card b{display:block;font-size:34px;font-weight:600;margin-bottom:8px}
-.pick{cursor:pointer;user-select:none}
-.pick:hover{transform:translateY(-4px);border-color:var(--amber)}
-.pick.sel{background:var(--ink);color:#fff;border-color:var(--ink)}
-.pick.sel .small{color:#C9D4DA}
-.small{font-size:28px;color:var(--muted);line-height:1.35}
-
-.stat{text-align:center}
-.stat .n{font-family:'Fraunces',serif;font-size:76px;font-weight:700;line-height:1}
-.stat .l{font-size:28px;color:var(--muted);margin-top:8px}
-
-.btn{border:none;background:var(--ink);color:#fff;font-family:'Outfit';font-size:28px;font-weight:500;padding:20px 42px;border-radius:100px;cursor:pointer;transition:.18s}
-.btn:hover{background:var(--coral);transform:translateY(-2px)}
-
-/* wheel */
-#qbox{margin-top:40px;background:#fff;border:2px solid var(--line);border-radius:26px;min-height:300px;display:flex;align-items:center;justify-content:center;padding:50px;text-align:center}
-#qtext{font-family:'Fraunces',serif;font-size:56px;line-height:1.2}
-#qtag{font-size:28px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:18px}
-
-/* this or that */
-.vs{display:flex;align-items:center;gap:28px;margin-top:16px}
-.vs .opt{flex:1;background:#fff;border:2px solid var(--line);border-radius:20px;padding:30px;font-size:32px;text-align:center;cursor:pointer;transition:.18s}
-.vs .opt:hover{border-color:var(--amber)}
-.vs .opt.sel{background:var(--teal);color:#fff;border-color:var(--teal)}
-.vs .or{font-family:'Fraunces',serif;font-size:28px;color:var(--muted)}
-
-/* upgrade cards */
-.up{background:#fff;border:2px solid var(--line);border-radius:20px;padding:26px 30px;cursor:pointer;transition:.18s}
-.up:hover{border-color:var(--amber)}
-.up .from{font-size:30px;color:var(--muted);text-decoration:line-through;text-decoration-color:var(--coral)}
-.up .to{font-size:36px;font-weight:600;color:var(--teal);margin-top:12px;display:none}
-.up.open .to{display:block;animation:in .3s ease both}
-.up .hint{font-size:28px;color:#B6AFA4;margin-top:12px}
-.up.open .hint{display:none}
-.up.plain .from{color:var(--ink);text-decoration:none;font-size:40px;font-weight:600}
-.up.plain .to{color:var(--coral);font-size:29px;font-weight:400;margin-top:8px}
-.up.tight{padding:20px 24px}
-.up.tight .from{font-size:34px}
-.up.tight .to{font-size:28px;margin-top:6px}
-
-/* notes panel */
-#nbtn{position:fixed;top:16px;right:16px;z-index:300;border:none;background:#1E2C34;color:#E8EEF1;font-family:'Outfit';font-size:16px;font-weight:500;padding:12px 20px;border-radius:100px;cursor:pointer;letter-spacing:.04em}
-#nbtn:hover{background:var(--coral)}
-#pdfbtn{position:fixed;top:16px;right:112px;z-index:300;border:none;background:#1E2C34;color:#E8EEF1;font-family:'Outfit';font-size:16px;font-weight:500;padding:12px 20px;border-radius:100px;cursor:pointer;letter-spacing:.04em}
-#pdfbtn:hover{background:var(--teal)}
-
-/* print / PDF export */
-#printroot{display:none}
-@media print{
-  @page{size:landscape;margin:10mm}
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  html,body{background:#fff!important;height:auto!important;overflow:visible!important}
-  body>*{display:none!important}
-  #printroot{display:block!important}
-  .psheet{display:block;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid}
-  .psheet:last-child{page-break-after:auto;break-after:auto}
-  .pslidewrap{width:928px;height:522px;overflow:hidden;position:relative;border:1px solid #E4DCD1;border-radius:12px;background:var(--paper)}
-  .pscale{position:absolute;top:0;left:0;width:1600px;height:900px;transform:scale(.58);transform-origin:top left}
-  .pscale .slide{display:flex!important;position:absolute!important;inset:0!important;animation:none!important;opacity:1!important}
-  .pscale .fitwrap{transform:none!important}
-  .pnotes{width:928px;margin-top:12px;font-family:'Outfit',sans-serif}
-  .pnh{font-size:13px;font-weight:700;color:#1B2A33;margin-bottom:5px}
-  .pnb{font-size:13px;line-height:1.5;color:#33424c;white-space:pre-wrap;min-height:30px;border-top:1px solid #E4DCD1;padding-top:8px}
-}
-#nbtn .dot{display:none;width:8px;height:8px;border-radius:50%;background:var(--amber);margin-left:8px;vertical-align:middle}
-#nbtn.has .dot{display:inline-block}
-#panel{position:fixed;top:0;right:0;bottom:0;width:var(--pw);background:#111A1F;border-left:1px solid #22303a;z-index:250;display:flex;flex-direction:column;padding:64px 18px 18px;transform:translateX(100%);transition:transform .28s ease}
-#grip{position:absolute;left:0;top:0;bottom:0;width:10px;cursor:ew-resize;background:transparent}
-#grip:hover,#grip.drag{background:#26343d}
-body.dragging{cursor:ew-resize;user-select:none}
-body.dragging #viewport,body.dragging #panel{transition:none}
-body.notes #panel{transform:none}
-#panel .ttl{color:#7C8B94;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}
-#panel .cur{color:#E8EEF1;font-size:19px;font-weight:600;line-height:1.25;margin-bottom:14px;min-height:48px}
-#ntext{flex:1;width:100%;background:#182329;border:1px solid #26343d;border-radius:12px;color:#EAF1F4;font-family:'Outfit';font-size:20px;line-height:1.45;padding:16px;resize:none;outline:none}
-#ntext:focus{border-color:var(--coral)}
-#ntext::placeholder{color:#5A6B75}
-#panel .acts{display:flex;gap:8px;margin-top:12px}
-#panel .acts button{flex:1;border:1px solid #26343d;background:transparent;color:#9FB0BA;font-family:'Outfit';font-size:14px;padding:11px;border-radius:9px;cursor:pointer}
-#panel .acts button:hover{background:#1B262C;color:#fff}
-
-/* rating rows */
-.rt{display:flex;align-items:center;gap:24px;margin-bottom:15px}
-.rt .st{flex:1;font-size:28px;line-height:1.25}
-.rt .sc{display:flex;gap:8px}
-.rt .sc div{font-size:28px;font-weight:500;padding:14px 0;width:184px;text-align:center;border:2px solid var(--line);border-radius:100px;background:#fff;cursor:pointer;user-select:none;transition:.15s}
-.rt .sc div:hover{border-color:var(--amber)}
-.rt .sc div.on{color:#fff;border-color:transparent}
-.rt .sc .s0.on{background:var(--teal)}
-.rt .sc .s1.on{background:var(--amber)}
-.rt .sc .s2.on{background:var(--coral)}
-.rt .sc .s3.on{background:#C9412F}
-
-.foot{position:absolute;bottom:52px;left:96px;right:96px;font-size:28px;color:var(--muted)}
-
-/* track buttons */
-.branch{position:absolute;right:96px;bottom:46px;display:flex;gap:14px;z-index:20}
-.branch button{width:76px;height:76px;border-radius:50%;border:2px solid var(--line);background:#fff;font-size:36px;line-height:1;cursor:pointer;transition:.18s;padding:0}
-.branch button:hover{transform:translateY(-5px);border-color:var(--amber);box-shadow:0 10px 24px rgba(0,0,0,.12)}
-</style>
-
-<div id="viewport"><div id="stage">
-
-<!-- 1 -->
-<section class="slide on">
-  <div class="blob" style="width:420px;height:420px;right:-120px;top:-120px;background:radial-gradient(circle at 30% 30%,#F2B138,#F26B5B)"></div>
-  <div class="blob" style="width:230px;height:230px;left:-70px;bottom:-70px;background:radial-gradient(circle at 30% 30%,#6C63C9,#1F8A82)"></div>
-  <div style="margin:auto 0">
-    <div class="kicker">Trial Lesson</div>
-    <h1>Let's just<br><span class="mark">talk</span> for a while.</h1>
-    <div class="sub">No test. No pressure. By the end of today you'll know exactly<br>where you are — and exactly where we're going.</div>
-    <div style="margin-top:52px;font-size:30px;font-weight:500">with <b>Teacher Nanda</b> &nbsp;·&nbsp; <span class="c-muted" style="color:var(--muted)">Cambridge CELTA Certified</span></div>
-  </div>
-</section>
-
-<!-- 2 -->
-<section class="slide" id="hello">
-  <div class="kicker">Hello</div>
-  <h2>I'm Nanda.</h2>
-  <div class="sub">Brazilian. English teacher since 2019. Once upon a time, a student just like you.</div>
-  <div class="grid g4" style="margin-top:70px">
-    <div class="stat"><div class="n c-coral">8,100+</div><div class="l">lessons taught</div></div>
-    <div class="stat"><div class="n c-teal">120h</div><div class="l">Cambridge CELTA · Pass A</div></div>
-    <div class="stat"><div class="n c-violet">28</div><div class="l">countries visited</div></div>
-    <div class="stat"><div class="n c-amber">3</div><div class="l">languages fluently</div></div>
-  </div>
-  <div class="foot" style="right:410px">I learned English the same way you're doing it now — so I know exactly where it gets hard.</div>
-  <div class="branch">
-    <button onclick="branch('br')" title="Brazil">⚽</button>
-    <button onclick="branch('tw')" title="Taiwan">🧋</button>
-    <button onclick="branch('biz')" title="Business / Interview">💼</button>
-  </div>
-</section>
-
-<!-- BR track · cognates -->
-<section class="slide" id="br1">
-  <div class="kicker">Start here</div>
-  <h2>You already know<br>hundreds of English words.</h2>
-  <div class="sub">Say each one out loud. Click to see it in a real sentence.</div>
-  <div class="grid g4" style="margin-top:26px;gap:16px">
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">music</div><div class="to">I listen to music every day.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">video</div><div class="to">I watch music videos every day.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">television</div><div class="to">What's on television tonight?</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">guitar</div><div class="to">He plays the guitar very well.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">concert</div><div class="to">The concert starts at eight.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">festival</div><div class="to">I go to a music festival every summer.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">actor</div><div class="to">Who is your favorite actor?</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">famous</div><div class="to">That song is very famous.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">hotel</div><div class="to">My hotel is near the beach.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">airport</div><div class="to">The airport is far from the city.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">passport</div><div class="to">Don't forget your passport!</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">restaurant</div><div class="to">This restaurant is really good.</div><div class="hint">click</div></div>
-  </div>
-</section>
-
-<!-- BR track · pronunciation -->
-<section class="slide" id="br2" data-next="shared">
-  <div class="kicker">Pronunciation</div>
-  <h2>Four sounds, and you sound <span class="c-teal">clear</span>.</h2>
-  <div class="sub">These four make the biggest difference. Click, then repeat after me.</div>
-  <div class="grid g2" style="margin-top:26px">
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">1 &nbsp;The <b>TH</b> sound</div><div class="to">think · this · three · brother<div class="small" style="margin-top:8px">Tongue between your teeth. Not "tink", not "dis".</div></div><div class="hint">click to practice</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">2 &nbsp;Stop the extra vowel</div><div class="to">book · work · night · big<div class="small" style="margin-top:8px">End on the consonant. Not "booki", not "nighti".</div></div><div class="hint">click to practice</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">3 &nbsp;The <b>H</b> is real</div><div class="to">hotel · house · happy · hello<div class="small" style="margin-top:8px">Push air out. In English the H is never silent.</div></div><div class="hint">click to practice</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">4 &nbsp;The <b>-ED</b> ending</div><div class="to">watch<b>ed</b> = /t/ · play<b>ed</b> = /d/ · want<b>ed</b> = /id/<div class="small" style="margin-top:8px">Three sounds, one spelling. Most students never learn this.</div></div><div class="hint">click to practice</div></div>
-  </div>
-</section>
-
-<!-- TW track · cognates -->
-<section class="slide" id="tw1">
-  <div class="kicker">Start here</div>
-  <h2>You already know<br>hundreds of English words.</h2>
-  <div class="sub">Say each one out loud. Click to see it in a real sentence.</div>
-  <div class="grid g4" style="margin-top:26px;gap:16px">
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">coffee</div><div class="to">I drink coffee every morning.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">toast</div><div class="to">I have toast for breakfast.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">cheese</div><div class="to">Do you like cheese on your pizza?</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">sandwich</div><div class="to">I'd like a chicken sandwich.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">pizza</div><div class="to">Let's order a pizza tonight.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">salad</div><div class="to">I want a salad, please.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">chocolate</div><div class="to">This chocolate is very sweet.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">karaoke</div><div class="to">We go to karaoke on Friday.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">guitar</div><div class="to">He plays the guitar very well.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">sofa</div><div class="to">The cat is on the sofa.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">taxi</div><div class="to">Let's take a taxi to the airport.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">hotel</div><div class="to">My hotel is near the station.</div><div class="hint">click</div></div>
-  </div>
-</section>
-
-<!-- TW track · pronunciation -->
-<section class="slide" id="tw2">
-  <div class="kicker">Pronunciation</div>
-  <h2>Four sounds, and you sound <span class="c-teal">clear</span>.</h2>
-  <div class="sub">These four make the biggest difference. Click, then repeat after me.</div>
-  <div class="grid g2" style="margin-top:26px">
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">1 &nbsp;Finish the word</div><div class="to">desk · six · cold · milk<div class="small" style="margin-top:8px">English words end on consonants. Don't drop them, don't add a vowel.</div></div><div class="hint">click to practice</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">2 &nbsp;The <b>TH</b> sound</div><div class="to">think · this · three · brother<div class="small" style="margin-top:8px">Tongue between your teeth. Not "sink", not "dis".</div></div><div class="hint">click to practice</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">3 &nbsp;<b>V</b> is not <b>W</b></div><div class="to">very · video · visit · TV<div class="small" style="margin-top:8px">Top teeth touch your bottom lip. "Very", never "wery".</div></div><div class="hint">click to practice</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">4 &nbsp;The endings carry meaning</div><div class="to">two book<b>s</b> · he walk<b>ed</b> · she want<b>ed</b><div class="small" style="margin-top:8px">Drop the ending and you change the meaning. Most students never practice this.</div></div><div class="hint">click to practice</div></div>
-  </div>
-</section>
-
-<!-- BIZ track · business words -->
-<section class="slide" id="biz1">
-  <div class="kicker">Start here</div>
-  <h2>You already use<br>these words at work.</h2>
-  <div class="sub">Say each one out loud. Click to see it in a real sentence.</div>
-  <div class="grid g4" style="margin-top:26px;gap:16px">
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">email</div><div class="to">I'll send you an email.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">meeting</div><div class="to">We have a meeting at ten.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">project</div><div class="to">This is a big project.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">client</div><div class="to">The client is happy.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">manager</div><div class="to">My manager is very kind.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">presentation</div><div class="to">I have a presentation today.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">report</div><div class="to">Please read the report.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">team</div><div class="to">My team is great.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">experience</div><div class="to">I have five years of experience.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">position</div><div class="to">I'm applying for this position.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">deadline</div><div class="to">The deadline is Friday.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">feedback</div><div class="to">Thank you for your feedback.</div><div class="hint">click</div></div>
-  </div>
-</section>
-
-<!-- BIZ track · interview questions -->
-<section class="slide" id="biz2">
-  <div class="kicker">Job interview</div>
-  <h2>The questions you'll <span class="c-coral">always</span> hear.</h2>
-  <div class="sub">Every interview has these. Click to see an easy way to start your answer.</div>
-  <div class="grid g2" style="margin-top:22px;gap:14px">
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">"Tell me about yourself."</div><div class="to">I'm a nurse with five years of experience…</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">"Why do you want this job?"</div><div class="to">I want this job because…</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">"What are your strengths?"</div><div class="to">I'm good at… / I'm a hard worker.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">"What is a weakness?"</div><div class="to">Sometimes I… but I'm working on it.</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">"Why should we hire you?"</div><div class="to">Because I can help you with…</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">"Do you have any questions?"</div><div class="to">Yes — can you tell me about…?</div><div class="hint">click</div></div>
-  </div>
-</section>
-
-<!-- BIZ track · confident delivery -->
-<section class="slide" id="biz3" data-next="warmup">
-  <div class="kicker">Sound confident</div>
-  <h2>It's not just the words —<br>it's <span class="c-teal">how</span> you say them.</h2>
-  <div class="sub">Four small habits that make you sound sure of yourself. Click, then try it.</div>
-  <div class="grid g2" style="margin-top:26px">
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">1 &nbsp;Slow down</div><div class="to">Pause between your ideas. Silence is fine — it sounds calm, not nervous.</div><div class="hint">click</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">2 &nbsp;Stress the key word</div><div class="to">"I'm <b>really</b> interested in this <b>position</b>." The stressed word carries your meaning.</div><div class="hint">click</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">3 &nbsp;End going down</div><div class="to">Let your voice fall at the end of an answer. A falling tone sounds finished and confident.</div><div class="hint">click</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from" style="text-decoration:none;color:var(--ink);font-weight:600">4 &nbsp;Smile — they hear it</div><div class="to">Warmth comes through your voice on a call. It's the easiest way to sound friendly.</div><div class="hint">click</div></div>
-  </div>
-</section>
-
-<!-- shared flow starts here -->
-<section class="slide" id="shared">
-  <div class="kicker">Music · Movies · Series</div>
-  <h2>Why songs feel <span class="c-coral">too fast</span>.</h2>
-  <div class="sub">Singers and actors never say the full words. Here's what they're really saying.</div>
-  <div class="grid g4" style="margin-top:26px;gap:16px">
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">gonna</div><div class="to">going to</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">wanna</div><div class="to">want to</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">gotta</div><div class="to">got to / have to</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">'cause</div><div class="to">because</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">lemme</div><div class="to">let me</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">kinda</div><div class="to">kind of</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">y'know</div><div class="to">you know</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">ain't</div><div class="to">isn't / aren't / haven't</div><div class="hint">click</div></div>
-  </div>
-  <div class="foot">Once you hear these, half of every song opens up.</div>
-</section>
-
-<!-- J4 travel survival -->
-<section class="slide">
-  <div class="kicker">Travel</div>
-  <h2>Eight sentences. Any country.</h2>
-  <div class="sub">With these you can travel tomorrow. Say each one, then click to finish it.</div>
-  <div class="grid g2" style="margin-top:22px;gap:14px">
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">Excuse me, where is…</div><div class="to">…the station? …the bathroom? …the exit?</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">How much is it?</div><div class="to">You'll hear a number: "It's fifteen euros."</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">Can I have…, please?</div><div class="to">Can I have the menu, please?</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">I'd like…</div><div class="to">I'd like a coffee, please. (= I want, but polite)</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">Sorry, I don't understand.</div><div class="to">…Can you write it down for me?</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">Could you repeat that?</div><div class="to">Could you repeat that, please? (always add "please")</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">Could you speak slowly?</div><div class="to">Could you speak more slowly, please?</div><div class="hint">click</div></div>
-    <div class="up plain tight" onclick="this.classList.toggle('open')"><div class="from">The check, please.</div><div class="to">Can I have the check, please?</div><div class="hint">click</div></div>
-  </div>
-</section>
-
-<!-- 3 question generator -->
-<section class="slide" id="warmup">
-  <div class="kicker">Warm up · Speak</div>
-  <h2>Pick a card, any card.</h2>
-  <div class="sub">Answer in as many sentences as you can. There is no wrong answer here.</div>
-  <div id="qbox"><div><div id="qtag">Ready?</div><div id="qtext">Click the button and let's start talking.</div></div></div>
-  <div style="margin-top:30px;display:flex;gap:18px;align-items:center">
-    <button class="btn" onclick="nextQ()">Give me a question →</button>
-    <button class="btn" id="lvlbtn" style="background:#fff;color:var(--ink);border:2px solid var(--line)" onclick="toggleLevel()">Level: Easy</button>
-  </div>
-</section>
-
-<!-- 5 this or that -->
-<section class="slide">
-  <div class="kicker">Game · Choose &amp; defend</div>
-  <h2>This, or that?</h2>
-  <div class="sub">Choose one — then tell me <b>why</b>. The "why" is the real exercise.</div>
-  <div style="margin-top:34px">
-    <div class="vs"><div class="opt" onclick="pickVS(this)">A month in one city</div><div class="or">or</div><div class="opt" onclick="pickVS(this)">Ten cities in a month</div></div>
-    <div class="vs"><div class="opt" onclick="pickVS(this)">Never hear music again</div><div class="or">or</div><div class="opt" onclick="pickVS(this)">Never watch films again</div></div>
-    <div class="vs"><div class="opt" onclick="pickVS(this)">Speak perfectly, understand little</div><div class="or">or</div><div class="opt" onclick="pickVS(this)">Understand everything, speak slowly</div></div>
-    <div class="vs"><div class="opt" onclick="pickVS(this)">Go back to any year in the past</div><div class="or">or</div><div class="opt" onclick="pickVS(this)">See any year in the future</div></div>
-  </div>
-</section>
-
-<!-- 6 upgrade -->
-<section class="slide">
-  <div class="kicker">Mini lesson · Level up</div>
-  <h2>Same idea. Better English.</h2>
-  <div class="sub">You already know the first version. Click to see what a fluent speaker would say instead.</div>
-  <div class="grid g2" style="margin-top:30px">
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from">"It was very good."</div><div class="to">"It was absolutely worth it."</div><div class="hint">click to reveal</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from">"I like it a lot."</div><div class="to">"I'm really into it."</div><div class="hint">click to reveal</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from">"I don't know how to say…"</div><div class="to">"How do you say it when…?"</div><div class="hint">click to reveal</div></div>
-    <div class="up" onclick="this.classList.toggle('open')"><div class="from">"My English is bad."</div><div class="to">"I'm still working on my fluency."</div><div class="hint">click to reveal</div></div>
-  </div>
-  <div class="foot">Now try one of them in your next sentence. That's how it sticks.</div>
-</section>
-
-<!-- 7 blockers, rated -->
-<section class="slide">
-  <div class="kicker">What gets in the way</div>
-  <h2>How often is this <span class="c-coral">you</span>?</h2>
-  <div class="sub">Be honest — whatever scores highest is where we start.</div>
-  <div style="margin-top:34px">
-    <div class="rt"><div class="st">I understand English, but the words don't come out.</div><div class="sc">
-      <div class="s0" onclick="rate(this)">Never</div><div class="s1" onclick="rate(this)">Sometimes</div><div class="s2" onclick="rate(this)">Often</div><div class="s3" onclick="rate(this)">Always</div></div></div>
-    <div class="rt"><div class="st">Native speakers talk too fast for me.</div><div class="sc">
-      <div class="s0" onclick="rate(this)">Never</div><div class="s1" onclick="rate(this)">Sometimes</div><div class="s2" onclick="rate(this)">Often</div><div class="s3" onclick="rate(this)">Always</div></div></div>
-    <div class="rt"><div class="st">I'm afraid of making mistakes.</div><div class="sc">
-      <div class="s0" onclick="rate(this)">Never</div><div class="s1" onclick="rate(this)">Sometimes</div><div class="s2" onclick="rate(this)">Often</div><div class="s3" onclick="rate(this)">Always</div></div></div>
-    <div class="rt"><div class="st">I use the same few words again and again.</div><div class="sc">
-      <div class="s0" onclick="rate(this)">Never</div><div class="s1" onclick="rate(this)">Sometimes</div><div class="s2" onclick="rate(this)">Often</div><div class="s3" onclick="rate(this)">Always</div></div></div>
-    <div class="rt"><div class="st">People ask me to repeat myself.</div><div class="sc">
-      <div class="s0" onclick="rate(this)">Never</div><div class="s1" onclick="rate(this)">Sometimes</div><div class="s2" onclick="rate(this)">Often</div><div class="s3" onclick="rate(this)">Always</div></div></div>
-    <div class="rt"><div class="st">I freeze when I have to speak.</div><div class="sc">
-      <div class="s0" onclick="rate(this)">Never</div><div class="s1" onclick="rate(this)">Sometimes</div><div class="s2" onclick="rate(this)">Often</div><div class="s3" onclick="rate(this)">Always</div></div></div>
-  </div>
-</section>
-
-<!-- 9 goals -->
-<section class="slide">
-  <div class="kicker">Where you're going</div>
-  <h2>Finish the sentence:<br>"In six months, I want to…"</h2>
-  <div class="grid g3" style="margin-top:34px">
-    <div class="card pick" onclick="this.classList.toggle('sel')"><b>Travel</b><span class="small">Handle any airport, hotel or conversation with strangers</span></div>
-    <div class="card pick" onclick="this.classList.toggle('sel')"><b>Work</b><span class="small">Speak up in meetings without rehearsing first</span></div>
-    <div class="card pick" onclick="this.classList.toggle('sel')"><b>Interviews</b><span class="small">Tell my story in English and get the job</span></div>
-    <div class="card pick" onclick="this.classList.toggle('sel')"><b>Exams</b><span class="small">TOEIC, TOEFL or IELTS — with the score I need</span></div>
-    <div class="card pick" onclick="this.classList.toggle('sel')"><b>Everyday life</b><span class="small">Series without subtitles, small talk without panic</span></div>
-    <div class="card pick" onclick="this.classList.toggle('sel')"><b>Sound natural</b><span class="small">Pronunciation, rhythm and a clear American accent</span></div>
-  </div>
-</section>
-
-<!-- 10 how I teach -->
-<section class="slide">
-  <div class="kicker">How I teach</div>
-  <h2>My side of the deal.</h2>
-  <div class="grid g3" style="margin-top:34px;gap:18px">
-    <div class="card"><b class="c-coral">Built for you</b><span class="small">Your goals, your topics, your pace. The exercises come from your own difficulties — never a generic course.</span></div>
-    <div class="card"><b class="c-teal">You do the talking</b><span class="small">Interactive activities, not lectures. My job is to give you something worth saying, then get out of the way.</span></div>
-    <div class="card"><b class="c-violet">Corrections as we go</b><span class="small">I catch things live and kindly, and you get every note afterward — nothing disappears when the call ends.</span></div>
-    <div class="card"><b class="c-amber">A clear American accent</b><span class="small">Pronunciation in every lesson, plus your own guide. This is the part most courses skip.</span></div>
-    <div class="card"><b class="c-coral">Real situations</b><span class="small">Vocabulary, grammar and idioms tied to places you'll actually use them — at work, traveling, watching a series.</span></div>
-    <div class="card"><b class="c-teal">Safe to be wrong</b><span class="small">Everybody makes mistakes. It's the only way anyone has ever learned a language, including me.</span></div>
-  </div>
-</section>
-
-<!-- 13 practical -->
-<section class="slide">
-  <div class="kicker">The practical part</div>
-  <h2>How we'll work together.</h2>
-  <div class="grid g2" style="margin-top:40px">
-    <div class="card"><b>50 minutes</b><span class="small">That's the lesson. Once or twice a week — consistency beats intensity every time.</span></div>
-    <div class="card"><b>Homework</b><span class="small">Optional activities after every lesson. Do them if you want to, and bring your questions to class — we'll review them together.</span></div>
-    <div class="card"><b>Practice with AI</b><span class="small">I'll give you ready-made AI prompts for the days we don't meet: rehearse a conversation, drill pronunciation, review vocabulary.</span></div>
-    <div class="card"><b>Your Drive folder</b><span class="small">Slides, personal notes, corrections and your pronunciation guide. All yours, forever.</span></div>
-  </div>
-</section>
-
-<button class="arrow" id="prev">‹</button>
-<button class="arrow" id="next">›</button>
-<div id="dots"></div>
-</div></div>
-
-<button id="pdfbtn" onclick="savePDF()">Save PDF</button>
-<button id="nbtn" onclick="toggleNotes()">Notes<span class="dot"></span></button>
-<div id="printroot"></div>
-<aside id="panel">
-  <div id="grip" title="Drag to resize"></div>
-  <textarea id="ntext" placeholder="Type your notes here…"></textarea>
-  <div class="acts">
-    <button onclick="copyAll(this)">Copy all</button>
-    <button onclick="clearNote()">Clear this</button>
-  </div>
-</aside>
-
-<script>
-const slides=[...document.querySelectorAll('.slide')];let i=0,SCALE=1;
-const dots=document.getElementById('dots');
-
-/* wrap each slide's content so it can shrink to fit instead of being cut off */
-slides.forEach(s=>{
-  const w=document.createElement('div');w.className='fitwrap';
-  [...s.children].forEach(c=>{if(!c.classList.contains('blob'))w.appendChild(c)});
-  s.appendChild(w);
-});
-function autofit(){
-  const s=slides[i],w=s&&s.querySelector('.fitwrap');
-  if(!w)return;
-  w.style.transform='none';
-  const top=w.getBoundingClientRect().top;
-  let bottom=top;
-  [...w.children].forEach(c=>{
-    if(getComputedStyle(c).position==='absolute')return;
-    const r=c.getBoundingClientRect();
-    if(r.height)bottom=Math.max(bottom,r.bottom);
-  });
-  const h=(bottom-top)/(SCALE||1), avail=900-156;
-  if(h>avail+1)w.style.transform='scale('+Math.max(.45,avail/h)+')';
-}
-slides.forEach((_,k)=>{const d=document.createElement('i');d.onclick=()=>go(k);dots.appendChild(d)});
-
-/* ---- notes ---- */
-const ntext=document.getElementById('ntext'),nbtn=document.getElementById('nbtn');
-/* notes live only for this session — cleared on every reload so one
-   student's notes never carry over to the next */
-let notes={};
-function saveNotes(){}
-function titleOf(k){const s=slides[k],h=s.querySelector('h1,h2');return h?h.textContent.replace(/\s+/g,' ').trim():'Slide '+(k+1)}
-function stash(){if(ntext.value.trim())notes[i]=ntext.value;else delete notes[i];saveNotes()}
-function loadNote(){ntext.value=notes[i]||'';nbtn.classList.toggle('has',Object.keys(notes).length>0)}
-ntext.addEventListener('input',()=>{stash();nbtn.classList.toggle('has',Object.keys(notes).length>0)});
-function toggleNotes(){document.body.classList.toggle('notes');fit();if(document.body.classList.contains('notes'))ntext.focus()}
-function clearNote(){ntext.value='';stash();loadNote()}
-function copyAll(b){
-  const out=Object.keys(notes).sort((a,b)=>a-b).map(k=>'— '+titleOf(k)+' —\n'+notes[k]).join('\n\n');
-  navigator.clipboard.writeText(out||'No notes yet.').then(()=>{
-    const o=b.textContent;b.textContent='Copied ✓';setTimeout(()=>b.textContent=o,1400);
-  }).catch(()=>{b.textContent='Press Ctrl+C';});
-}
-
-function go(n){
-  stash();
-  i=Math.max(0,Math.min(slides.length-1,n));
-  slides.forEach((s,k)=>s.classList.toggle('on',k===i));
-  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
-  loadNote();autofit();
-}
-/* ---- two starting tracks that merge into one flow ---- */
-let TRACK='br';
-const idx=id=>slides.findIndex(s=>s.id===id);
-const FIRST={br:'br1',tw:'tw1',biz:'biz1'};
-function branch(t){TRACK=t;go(idx(FIRST[t]))}
-function nextI(){
-  const cur=slides[i];
-  if(cur.dataset.next)return idx(cur.dataset.next);
-  if(cur.id==='tw2')return idx('shared');
-  return i+1;
-}
-function prevI(){
-  const cur=slides[i];
-  if(cur.id==='shared')return idx(TRACK==='br'?'br2':'tw2');
-  if(cur.id==='warmup'&&TRACK==='biz')return idx('biz3');
-  if(cur.id==='tw1'||cur.id==='biz1')return idx('hello');
-  return i-1;
-}
-document.getElementById('next').onclick=()=>go(nextI());
-document.getElementById('prev').onclick=()=>go(prevI());
-addEventListener('keydown',e=>{
-  const t=e.target;
-  if(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.isContentEditable)return;
-  if(e.key==='ArrowRight'||e.key===' ')go(nextI());
-  if(e.key==='ArrowLeft')go(prevI());
-});
-go(0);
-
-function fit(){
-  const v=document.getElementById('viewport'),st=document.getElementById('stage');
-  const aw=v.clientWidth-20,ah=v.clientHeight-20;
-  /* widen the slide beyond 16:9 when the space is wider than that,
-     so the notes panel steals height instead of leaving a black gap */
-  const W=Math.round(Math.min(2240,Math.max(1600,ah>0?900*(aw/ah):1600)));
-  st.style.width=W+'px';
-  SCALE=Math.min(aw/W,ah/900);
-  st.style.transform='scale('+SCALE+')';
-  autofit();
-}
-addEventListener('resize',fit);
-/* the panel animates open, so the viewport keeps changing size for ~300ms.
-   watch it directly instead of measuring once and hoping. */
-const vp=document.getElementById('viewport');
-if(window.ResizeObserver)new ResizeObserver(()=>fit()).observe(vp);
-vp.addEventListener('transitionend',fit);
-document.getElementById('stage').addEventListener('click',()=>requestAnimationFrame(autofit));
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
-setTimeout(fit,120);setTimeout(fit,600);fit();
-
-/* drag to resize the notes panel */
-(function(){
-  const grip=document.getElementById('grip'),root=document.documentElement;
-  let saved=parseInt(localStorage.getItem('nanda_pw')||'0');
-  if(saved>=220&&saved<=560)root.style.setProperty('--pw',saved+'px');
-  grip.addEventListener('mousedown',e=>{
-    e.preventDefault();grip.classList.add('drag');document.body.classList.add('dragging');
-    const move=ev=>{
-      const w=Math.min(560,Math.max(220,innerWidth-ev.clientX));
-      root.style.setProperty('--pw',w+'px');fit();
-    };
-    const up=()=>{
-      grip.classList.remove('drag');document.body.classList.remove('dragging');
-      removeEventListener('mousemove',move);removeEventListener('mouseup',up);
-      try{localStorage.setItem('nanda_pw',parseInt(getComputedStyle(root).getPropertyValue('--pw')))}catch(e){}
-      fit();
-    };
-    addEventListener('mousemove',move);addEventListener('mouseup',up);
-  });
-})();
-
-const QS=[
- ['Routine',"What does a really good day look like for you, from morning to night?"],
- ['Routine',"What's one habit you'd like to change — and what's stopping you?"],
- ['Travel',"What's the best place you've ever been, and what made it the best?"],
- ['Travel',"If you could fly anywhere tomorrow, no budget, where would you go?"],
- ['Free time',"What could you talk about for an hour without getting bored?"],
- ['Free time',"Would you rather go out or stay home this weekend? Why?"],
- ['Family',"Who in your family are you most similar to?"],
- ['Food',"What's a dish from your country that a foreigner has to try?"],
- ['Work',"What's the most interesting part of what you do?"],
- ['Work',"If you could change one thing about your job, what would it be?"],
- ['English',"Where do you use English in your life right now?"],
- ['English',"When was the last time English made you nervous?"],
- ['Big question',"What's something you believed five years ago that you don't believe now?"],
- ['Big question',"What would you do with a completely free week?"],
- ['Big question',"What's the best advice anyone has ever given you?"]
-];
-const EASY=[
- ['You',"What is your name, and where are you from?"],
- ['Music',"What music do you like? Who is your favorite singer?"],
- ['Music',"Do you play an instrument? Do you want to?"],
- ['Movies & TV',"What is your favorite movie? Why?"],
- ['Movies & TV',"Do you watch series in English? With subtitles?"],
- ['Travel',"What countries do you want to visit?"],
- ['Travel',"Do you like the beach or the mountains?"],
- ['Every day',"What time do you wake up?"],
- ['Every day',"What do you do on Saturday?"],
- ['Food',"What food do you like? What food do you not like?"],
- ['Family',"Do you have brothers or sisters?"],
- ['English',"Why do you want to learn English?"],
- ['English',"Is English easy or difficult for you?"],
- ['You',"What do you do in your free time?"],
- ['You',"What is one thing you want to do this year?"]
-];
-let easy=true,pool=[];
-function toggleLevel(){
-  easy=!easy;pool=[];
-  document.getElementById('lvlbtn').textContent='Level: '+(easy?'Easy':'Fluent');
-}
-function nextQ(){
-  const set=easy?EASY:QS;
-  if(!pool.length)pool=[...set].sort(()=>Math.random()-.5);
-  const q=pool.pop();
-  const t=document.getElementById('qtext'),g=document.getElementById('qtag');
-  t.style.animation='none';g.textContent=q[0];t.textContent=q[1];
-  void t.offsetWidth;t.style.animation='in .35s ease both';
-}
-function rate(el){[...el.parentElement.children].forEach(o=>o.classList.remove('on'));el.classList.add('on')}
-
-/* build a printable copy: every slide, with its notes underneath */
-function savePDF(){
-  stash();
-  const esc=t=>(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const root=document.getElementById('printroot');root.innerHTML='';
-  slides.forEach((s,n)=>{
-    const sheet=document.createElement('div');sheet.className='psheet';
-    const wrap=document.createElement('div');wrap.className='pslidewrap';
-    const scale=document.createElement('div');scale.className='pscale';
-    const clone=s.cloneNode(true);
-    clone.removeAttribute('id');
-    clone.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
-    clone.querySelectorAll('.branch').forEach(e=>e.remove());
-    clone.querySelectorAll('.up').forEach(e=>e.classList.add('open'));
-    const fw=clone.querySelector('.fitwrap');if(fw)fw.style.transform='none';
-    scale.appendChild(clone);wrap.appendChild(scale);
-    const nb=document.createElement('div');nb.className='pnotes';
-    const txt=(notes[n]||'').trim();
-    nb.innerHTML=
-      '<div class="pnh" style="font-family:Outfit,sans-serif;font-size:16px;font-weight:700;color:#1B2A33;margin:14px 0 6px">Notes</div>'+
-      '<div class="pnb" style="font-family:Outfit,sans-serif;font-size:19px;line-height:1.5;color:#1B2A33;white-space:pre-wrap;'+
-      'border-top:1px solid #E4DCD1;padding-top:8px;min-height:36px">'+(txt?esc(txt):'')+'</div>';
-    sheet.appendChild(wrap);sheet.appendChild(nb);root.appendChild(sheet);
-  });
-  setTimeout(()=>window.print(),120);
-}
-function pickVS(el){[...el.parentElement.querySelectorAll('.opt')].forEach(o=>o.classList.remove('sel'));el.classList.add('sel')}
-</script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trial Lesson — with Nanda</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><style>
+:root{--ink:#14121F;--muted:#5C5A6E;--lav:#EDE7FF;--cream:#FFF4D6;--pink:#FFE3EA;--sky:#DDF3FB;--purple:#6C4BE0;--coral:#E8735A;--amber:#F0A800;--blue:#2F9BC4;--ok:#1F8A5B;--bad:#C0392B;--acc:#6C4BE0;--line:#E3DFF5}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#fff;color:var(--ink);font-family:"Plus Jakarta Sans","Inter","Segoe UI",system-ui,sans-serif;line-height:1.5}
+body{overflow:hidden}
+.blobs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.blob{position:absolute}
+.b1{width:260px;height:260px;border-radius:50%;left:-90px;top:-90px;background:radial-gradient(circle at 35% 30%,#F59BFF,#A855F7 60%,#6C4BE0)}
+.b2{width:110px;height:110px;border-radius:50%;right:34px;top:20px;background:radial-gradient(circle at 35% 30%,#fff,#7FE3F0 45%,#1FB6D6)}
+.b3{width:150px;height:150px;border-radius:50%;right:-50px;bottom:60px;border:26px solid transparent;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#FFE27A,#FF9F6B) border-box}
+.b4{width:120px;height:120px;left:14px;bottom:70px;background-image:radial-gradient(circle,#FF7B6B 0 7px,transparent 8px);background-size:24px 24px;opacity:.9;transform:rotate(45deg)}
+header.top{position:fixed;top:0;left:0;right:0;height:54px;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 190px}
+.crumb{font-weight:800;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.crumb a{color:inherit;text-decoration:none}
+.chips{display:flex;gap:6px;align-items:center;font-weight:700;font-size:.85rem;color:var(--muted)}
+.chips button{font:inherit;border:2px solid var(--line);background:#fff;border-radius:999px;padding:4px 14px;cursor:pointer;color:var(--ink)}
+.chips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{position:fixed;top:54px;bottom:68px;left:0;right:0;z-index:1}
+.slide{display:none;position:absolute;inset:0;padding:6px 64px 20px;overflow-y:auto}
+.slide.show{display:flex;flex-direction:column}
+.slide.show>:first-child{margin-top:auto}.slide.show>:last-child{margin-bottom:auto}
+.slide.center{justify-content:center;align-items:center;text-align:center}
+h1{font-size:4.2rem;line-height:1.05;margin:0 0 14px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:2.5rem;line-height:1.1;margin:0 0 6px;font-weight:800;letter-spacing:-.02em;text-align:center}
+h1 em,h2 em{font-style:normal;color:var(--acc)}
+.sub{font-size:1.45rem;color:var(--muted);margin:0 auto 18px;max-width:1000px;text-align:center}
+.inst{font-size:1.25rem;font-weight:600;text-align:center;margin:0 auto 12px;max-width:1050px}
+.tag{display:inline-block;background:var(--lav);color:#3b2b99;font-weight:800;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 14px;border-radius:999px;margin:0 auto 4px}
+.tagrow{text-align:center}
+.grid{display:grid;gap:16px;width:100%;max-width:1220px;margin:0 auto}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.g5{grid-template-columns:repeat(5,minmax(0,1fr))}.g6{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--lav);border-radius:24px;padding:18px 22px;font-size:1.25rem}
+.card.c1{background:var(--lav)}.card.c2{background:var(--cream)}.card.c3{background:var(--pink)}.card.c4{background:var(--sky)}
+.card h3{margin:0 0 6px;font-size:1.5rem}
+.fc{cursor:pointer;border-radius:24px;padding:16px 20px;background:var(--lav);border:3px solid transparent;transition:transform .12s,box-shadow .12s;text-align:left;font-size:1.25rem}
+.fc:nth-child(4n+2){background:var(--cream)}.fc:nth-child(4n+3){background:var(--pink)}.fc:nth-child(4n+4){background:var(--sky)}
+.fc:hover,.fc:focus{box-shadow:0 6px 18px rgba(60,40,140,.16);outline:none}
+.fc .t{font-weight:800;font-size:1.5rem;line-height:1.2}
+.fc .e{font-size:2rem;line-height:1;margin-bottom:4px;display:block}
+.fc .q{color:#3d3a55;margin-top:4px}
+.fc .hint{display:none}
+.fc .back{display:none;margin-top:8px;padding-top:8px;border-top:2px dashed rgba(0,0,0,.18);font-weight:600}
+.fc.open .back{display:block}.fc.open .hint{display:none}
+.fc.cat .qs{display:none;margin-top:8px;font-size:1.12rem}
+.fc.cat.open .qs{display:block}.fc.cat .qs p{margin:0 0 6px}
+mark{background:#FFE066;padding:0 4px;border-radius:4px}
+.q-item{background:#fff;border:3px solid var(--line);border-radius:22px;padding:14px 20px;margin:0 auto 12px;width:100%;max-width:1180px}
+.q-item .qt{font-size:1.3rem;font-weight:700;margin:0 0 8px}
+.opts{display:flex;flex-wrap:wrap;gap:10px}
+.opt{font:inherit;font-size:1.15rem;font-weight:600;text-align:left;border:3px solid var(--line);background:#fff;border-radius:16px;padding:8px 16px;cursor:pointer;flex:1 1 280px;color:var(--ink)}
+.opt:hover{border-color:var(--purple)}
+.opt.ok{background:#DDF5E8;border-color:var(--ok)}.opt.bad{background:#FDE3E0;border-color:var(--bad)}
+.qgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:1260px;margin:0 auto;width:100%}.qgrid .q-item{margin:0;max-width:none;padding:10px 14px}.qgrid .qt{font-size:1.15rem;margin:0 0 6px}.qgrid .opts{gap:7px}.qgrid .opt{flex:1 1 100%;font-size:1.05rem;padding:5px 12px;border-width:2px}
+.fb{margin:8px 0 0;font-size:1.08rem;color:var(--ok);font-weight:600;display:none}
+.q-item.done .fb{display:block}
+.rate-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;background:#fff;border:3px solid var(--line);border-radius:20px;padding:10px 18px;margin:0 auto 10px;width:100%;max-width:1180px}
+.rate-row .st{font-size:1.25rem;font-weight:700}
+.rate-row .sc{display:flex;gap:8px}
+.sc button,.pill{font:inherit;font-size:1.05rem;font-weight:700;border:3px solid var(--line);background:#fff;border-radius:999px;padding:6px 16px;cursor:pointer;color:var(--ink)}
+.sc button.on,.pill.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.either{display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,1fr);align-items:center;gap:12px;margin:0 auto 12px;width:100%;max-width:1180px}
+.either .or{text-align:center;font-weight:800;color:var(--muted);font-size:1.2rem}
+.either button{font:inherit;font-size:1.3rem;font-weight:700;border:3px solid var(--line);background:#fff;border-radius:20px;padding:14px 18px;cursor:pointer;color:var(--ink);text-align:center}
+.either button:hover{border-color:var(--purple)}.either button.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.frame{background:var(--cream);border-radius:20px;padding:14px 22px;font-size:1.35rem;font-weight:700;text-align:center;max-width:1180px;margin:8px auto 0;width:100%}
+.frame small{display:block;font-weight:500;color:var(--muted);font-size:1.05rem;margin-top:4px}
+.build{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:20px;width:100%;max-width:1220px;margin:0 auto;align-items:start}
+.fields label{display:block;font-weight:700;font-size:1.1rem;margin:0 0 3px;color:var(--muted)}
+.fields input{font:inherit;font-size:1.25rem;width:100%;padding:8px 14px;border:3px solid var(--line);border-radius:14px;margin-bottom:10px}
+.fields input:focus{outline:none;border-color:var(--purple)}
+.out{background:var(--lav);border-radius:24px;padding:20px 26px;font-size:1.45rem;line-height:1.7;font-weight:600;min-height:200px}
+.out .ph{display:inline-block;min-width:90px;border-bottom:3px dotted #9a8de0;color:#9a8de0;text-align:center}
+.out b.v{color:var(--purple)}
+.steps{display:flex;gap:14px;align-items:stretch;justify-content:center;flex-wrap:nowrap;width:100%;max-width:1240px;margin:0 auto}
+.step{flex:1 1 0;border-radius:50%;aspect-ratio:1/1;max-width:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:1.25rem;padding:10px;background:var(--lav)}
+.step:nth-child(even){background:var(--cream)}.step:nth-child(3n){background:var(--pink)}
+.step small{display:block;font-weight:600;font-size:.88rem;color:var(--muted);margin-top:2px}
+.arrow{align-self:center;font-size:2rem;color:#E9B800;font-weight:900}
+.detail{background:#fff;border:3px solid var(--line);border-radius:20px;padding:12px 18px;margin:14px auto 0;font-size:1.2rem;max-width:1180px;width:100%;min-height:58px;text-align:center}
+.pickers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:1180px;margin:0 auto;width:100%}
+.path{cursor:pointer;border:none;font:inherit;text-align:left;border-radius:26px;padding:20px 24px;background:var(--lav);transition:transform .12s,box-shadow .12s;color:var(--ink)}
+.path:nth-child(2){background:var(--cream)}.path:nth-child(3){background:var(--pink)}.path:nth-child(4){background:var(--sky)}.path:nth-child(5){background:#F1E8FF}.path:nth-child(6){background:#FFEBD6}
+.path:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(60,40,140,.2)}
+.path .e{font-size:2.4rem;display:block;line-height:1.1}.path .t{font-size:1.6rem;font-weight:800;display:block;margin:4px 0 2px}.path .d{font-size:1.1rem;color:#3d3a55}
+.fb3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:1220px;margin:0 auto;width:100%}
+.fb3 .box{background:#fff;border:3px solid var(--line);border-radius:22px;padding:14px 18px}
+.fb3 h3{margin:0 0 6px;font-size:1.4rem}
+.edit{min-height:200px;font-size:1.25rem;outline:none;line-height:1.6}
+.edit:empty:before{content:attr(data-ph);color:#A7A4BC}
+.tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.panel{display:none;max-width:1200px;margin:0 auto;width:100%}.panel.on{display:block}
+.tbl{width:100%;border-collapse:separate;border-spacing:0 8px;font-size:1.2rem}
+.tbl td{background:var(--lav);padding:10px 16px}.tbl td:first-child{border-radius:16px 0 0 16px;font-weight:800;width:24%}.tbl td:last-child{border-radius:0 16px 16px 0}
+.tbl tr:nth-child(even) td{background:var(--cream)}
+.note{font-size:1.1rem;color:var(--muted);text-align:center;margin-top:8px}
+.wheel{display:flex;flex-direction:column;align-items:center;gap:14px}
+.spinbtn,.btn{font:inherit;font-size:1.3rem;font-weight:800;background:var(--purple);color:#fff;border:none;border-radius:999px;padding:12px 30px;cursor:pointer;box-shadow:0 5px 0 #4a30b0}
+.spinbtn:active,.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #4a30b0}
+.btn.alt{background:var(--ink);box-shadow:0 5px 0 #000}
+.big-out{background:var(--cream);border-radius:28px;padding:22px 34px;font-size:2rem;font-weight:800;text-align:center;min-width:560px;max-width:1100px}
+.hist{font-size:1.1rem;color:var(--muted);text-align:center}
+.emo{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;max-width:1180px;margin:0 auto;width:100%}
+.emo button{font:inherit;border:3px solid var(--line);background:#fff;border-radius:20px;padding:10px 6px;cursor:pointer;font-size:1.05rem;font-weight:700;color:var(--ink)}
+.emo button span{display:block;font-size:2.2rem;line-height:1.1}
+.emo button.on{border-color:var(--purple);background:var(--lav)}
+.roadmap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 34px;max-width:1100px;margin:0 auto;width:100%;font-size:1.4rem;font-weight:800}
+.roadmap div{display:flex;gap:14px;align-items:baseline}.roadmap b{color:#F0C020;font-size:1.9rem;min-width:46px}
+.smart{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;max-width:1260px;margin:0 auto;width:100%}
+.smart .s{border:3px solid var(--line);border-radius:22px;padding:12px 14px;background:#fff}
+.smart .s .l{font-size:2.6rem;font-weight:800;color:var(--purple);line-height:1}
+.smart .s b{display:block;margin-bottom:2px;font-size:1.05rem}
+.smart .s p{margin:0 0 6px;font-size:.98rem;color:var(--muted);line-height:1.3}
+.smart textarea{font:inherit;font-size:1.05rem;width:100%;border:2px solid var(--line);border-radius:12px;padding:6px 8px;resize:none;height:84px}
+.goalout{margin:12px auto 0;max-width:1260px;width:100%;background:var(--cream);border-radius:22px;padding:12px 22px;font-size:1.25rem;font-weight:600}
+.msg{background:#fff;border:3px solid var(--line);border-radius:24px;padding:20px 28px;font-size:1.2rem;max-width:1100px;width:100%;margin:0 auto;line-height:1.6}
+.msg p{margin:0 0 8px}
+.namebar{display:flex;gap:12px;justify-content:center;align-items:center;margin-bottom:12px;font-weight:700;font-size:1.2rem}
+.namebar input{font:inherit;font-size:1.2rem;padding:8px 14px;border:3px solid var(--line);border-radius:14px;width:260px}
+.hl{background:#FFE066;padding:0 4px;border-radius:4px}
+footer.bar{position:fixed;left:0;right:0;bottom:0;height:68px;z-index:6;background:#14121F;display:flex;align-items:center;justify-content:center;gap:14px;padding:0 16px}
+.bar button{font:inherit;font-weight:700;font-size:1rem;border:none;border-radius:12px;padding:9px 18px;cursor:pointer;background:#2E2B45;color:#fff}
+.bar button:disabled{opacity:.35;cursor:default}
+.bar #cnt{color:#fff;font-weight:700;min-width:60px;text-align:center}
+.dots{display:flex;gap:6px;flex-wrap:wrap;max-width:420px;justify-content:center}
+.dots i{width:10px;height:10px;border-radius:50%;background:#59557A;display:block}.dots i.on{background:#FFD84D}
+.bar .save{background:#5B3FD0}.bar .nt{background:#FFD84D;color:#14121F}
+#notes{position:fixed;right:18px;bottom:82px;width:440px;height:360px;min-width:320px;min-height:260px;max-width:96vw;max-height:84vh;resize:both;overflow:hidden;background:#fff;border:3px solid var(--ink);border-radius:22px;z-index:9;display:none;flex-direction:column;box-shadow:0 14px 40px rgba(0,0,0,.25)}
+#notes.show{display:flex}
+#notes h4{margin:0;padding:10px 16px;background:var(--ink);color:#fff;font-size:1rem;display:flex;justify-content:space-between;cursor:move;user-select:none;touch-action:none;flex:none}
+#notes .tb{display:flex;gap:6px;align-items:center;padding:8px 12px;border-bottom:2px solid var(--line);flex:none;flex-wrap:wrap}
+#notes .tb button{font:inherit;font-weight:800;border:2px solid var(--line);background:#fff;border-radius:10px;padding:2px 11px;cursor:pointer;min-width:36px;height:32px;color:var(--ink)}
+#notes .tb button.c{width:32px;min-width:32px;padding:0;border-radius:50%;border:2px solid rgba(0,0,0,.25)}
+#notes .tb .sep{width:2px;height:22px;background:var(--line);margin:0 2px}
+#notes .ed{flex:1 1 auto;min-height:0;overflow:auto;padding:12px 16px;font-size:1.2rem;outline:none;line-height:1.6}
+.ov{position:fixed;inset:54px 0 68px 0;z-index:8;background:rgba(20,18,31,.55);display:none;align-items:center;justify-content:center}.ov.show{display:flex}
+.ovp{background:#fff;border-radius:30px;padding:26px 36px;max-width:920px;width:90%;max-height:100%;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.ovp h3{font-size:2.2rem;margin:0 0 10px;line-height:1.15}
+.ovp ul{margin:0;padding-left:1.2em;font-size:1.45rem;line-height:1.5}.ovp li{margin:0 0 8px}
+.ovp .go{margin-top:14px;display:flex;gap:12px;justify-content:flex-end}
+.path.sel{outline:5px solid #14121F}
+.cover-line{width:min(560px,70%);height:3px;background:linear-gradient(90deg,#7FD6E8,#C9B8FF);margin:22px auto 0;border-radius:3px}
+.cover-sub{font-size:1.5rem;margin:6px 0}
+.badge{display:inline-block;background:#fff;border:3px solid var(--line);border-radius:999px;padding:6px 18px;font-weight:700;font-size:1.1rem;margin:6px 6px 0}
+@media (max-width:1100px){h1{font-size:3rem}h2{font-size:2.2rem}.g3,.g4,.g5,.pickers,.fb3,.smart{grid-template-columns:repeat(2,minmax(0,1fr))}.emo{grid-template-columns:repeat(3,minmax(0,1fr))}.build{grid-template-columns:1fr}.slide{padding:6px 24px 20px}header.top{padding-left:24px}}
+</style></head><body><div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div><header class="top"><span class="crumb"><a href="index.html">Trial Lesson</a> · with Nanda</span><span class="chips" id="lenChips">⏱ Lesson length <button data-len="25">25 min</button><button data-len="50">50 min</button></span></header><main><section class="slide center" id="s-cover" data-label="Cover" style="--acc:#E8735A"><div class="tagrow"><span class="tag">Trial lesson</span></div><h1>Your English<br><em>starts here</em></h1><p class="cover-sub">with Teacher Nanda</p><div class="cover-line"></div></section><section class="slide" id="s-plan" data-label="Today's plan" style="--acc:#F0A800"><h2>Today's <em>plan</em></h2><p class="inst">Four steps. Here is how today works.</p><div class="steps"><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'We get to know each other: your life, your interests, your English.')">Meet<small><span data-t25="8" data-t50="15"></span></small></div><div class="arrow">➜</div><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'We look at the English courses and find the one that fits your goal.')">Explore<small><span data-t25="6" data-t50="12"></span></small></div><div class="arrow">➜</div><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'We set your goal and see how our lessons work.')">Plan<small><span data-t25="8" data-t50="15"></span></small></div><div class="arrow">➜</div><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'We choose your schedule and your first class.')">Go<small><span data-t25="3" data-t50="8"></span></small></div></div><div class="detail">Six steps, one by one.</div></section><section class="slide" id="s-know" data-label="Getting to know each other" style="--acc:#E8735A"><h2>Getting to know <em>each other</em></h2><p class="inst">Six topics. Let's talk about all of them.</p><div class="grid g3"><div class="fc cat" tabindex="0" role="button" onclick="tog(this)"><span class="e">🛋️</span><div class="t">Routine</div><div class="qs"><p>What does a <b>typical</b> day in your life look like?</p><p>What time do you <b>usually</b> wake up?</p><p>What's one <b>habit</b> you'd like to improve?</p></div><div class="hint">Click to open</div></div><div class="fc cat" tabindex="0" role="button" onclick="tog(this)"><span class="e">🎸</span><div class="t">Free time</div><div class="qs"><p>What do you usually do for fun, as a <b>hobby</b> or <b>sport</b>?</p><p>Would you rather go out or stay at home on weekends?</p></div><div class="hint">Click to open</div></div><div class="fc cat" tabindex="0" role="button" onclick="tog(this)"><span class="e">👨‍👩‍👧</span><div class="t">Family</div><div class="qs"><p>Do you have a big or small <b>family</b>?</p><p>How often do you see your <b>relatives</b>?</p></div><div class="hint">Click to open</div></div><div class="fc cat" tabindex="0" role="button" onclick="tog(this)"><span class="e">✈️</span><div class="t">Travel</div><div class="qs"><p>Where have you <b>been</b>?</p><p>Which is your favorite <b>trip</b>?</p><p>If you could go anywhere <b>tomorrow</b>, where would you go?</p></div><div class="hint">Click to open</div></div><div class="fc cat" tabindex="0" role="button" onclick="tog(this)"><span class="e">💬</span><div class="t">English usage</div><div class="qs"><p>Do you use <b>English</b> in your daily life?</p><p>How about in your <b>free time</b> activities?</p><p><b>How</b> have you practiced English before?</p></div><div class="hint">Click to open</div></div><div class="fc cat" tabindex="0" role="button" onclick="tog(this)"><span class="e">🎯</span><div class="t">Goals</div><div class="qs"><p>What would you like to be able to do in <b>English</b>?</p><p>How much time can you spend studying English in a week?</p></div><div class="hint">Click to open</div></div></div></section><section class="slide x50" id="s-today" data-label="Your English today" style="--acc:#6C4BE0"><h2>Your English <em>today</em></h2><p class="inst">How often is this you? Be honest. There are no wrong answers.</p><div class="rate-row"><div class="st">I understand English, but the words don't come out.</div><div class="sc"><button onclick="rate(this)">Never</button><button onclick="rate(this)">Sometimes</button><button onclick="rate(this)">Often</button><button onclick="rate(this)">Always</button></div></div><div class="rate-row"><div class="st">I freeze when I have to speak.</div><div class="sc"><button onclick="rate(this)">Never</button><button onclick="rate(this)">Sometimes</button><button onclick="rate(this)">Often</button><button onclick="rate(this)">Always</button></div></div><div class="rate-row"><div class="st">I can follow series and videos without subtitles.</div><div class="sc"><button onclick="rate(this)">Never</button><button onclick="rate(this)">Sometimes</button><button onclick="rate(this)">Often</button><button onclick="rate(this)">Always</button></div></div><div class="rate-row"><div class="st">I worry about making mistakes.</div><div class="sc"><button onclick="rate(this)">Never</button><button onclick="rate(this)">Sometimes</button><button onclick="rate(this)">Often</button><button onclick="rate(this)">Always</button></div></div><div class="rate-row"><div class="st">I use English in my daily life.</div><div class="sc"><button onclick="rate(this)">Never</button><button onclick="rate(this)">Sometimes</button><button onclick="rate(this)">Often</button><button onclick="rate(this)">Always</button></div></div></section><section class="slide" id="s-why" data-label="Why English?" style="--acc:#6C4BE0"><h2>Why do you need <em>English</em>?</h2><p class="inst">Which goal is yours?</p><div class="pickers"><button class="path" id="pc-conv" onclick="showOv('conv')"><span class="e">💬</span><span class="t">Conversational English</span><span class="d">Speak naturally about everyday life</span></button><button class="path" id="pc-biz" onclick="showOv('biz')"><span class="e">💼</span><span class="t">Business English</span><span class="d">Meetings, emails, presentations</span></button><button class="path" id="pc-int" onclick="showOv('int')"><span class="e">🎤</span><span class="t">Job Interview</span><span class="d">Answer with confidence</span></button><button class="path" id="pc-trv" onclick="showOv('trv')"><span class="e">✈️</span><span class="t">Travel English</span><span class="d">From immigration to restaurants</span></button><button class="path" id="pc-exm" onclick="showOv('exm')"><span class="e">📝</span><span class="t">Exam Prep</span><span class="d">TOEFL · IELTS · TOEIC · Cambridge</span></button><button class="path" id="pc-mix" onclick="showOv('mix')"><span class="e">🧭</span><span class="t">Not sure yet?</span><span class="d">Videos, writing, clubs and more</span></button></div><div class="ov" id="ov-conv" onclick="if(event.target===this)hideOv()"><div class="ovp"><h3>💬 Conversational English</h3><ul><li><b>Speaking first</b>, with listening and reading</li><li>Daily-life topics: travel, family, food, work, technology…</li><li>Grammar, vocabulary and pronunciation, always in context</li><li>Useful phrases for real conversations</li><li>Personal feedback after every lesson</li></ul><div class="go"><a class="btn" style="text-decoration:none" href="conversational/index.html" onclick="this.href='conversational/index.html?len='+LEN">Try a mini-lesson ▶</a><button class="btn alt" onclick="hideOv()">Close</button></div></div></div><div class="ov" id="ov-biz" onclick="if(event.target===this)hideOv()"><div class="ovp"><h3>💼 Business English</h3><ul><li>Meetings, presentations, small talk and case studies</li><li>Phrasal verbs and idioms used at work</li><li>Business writing: emails, reports and job applications</li><li>Realistic workplace situations, speaking first</li><li>Optional homework to practice on your own</li></ul><div class="go"><a class="btn" style="text-decoration:none" href="business/index.html" onclick="this.href='business/index.html?len='+LEN">Try a mini-lesson ▶</a><button class="btn alt" onclick="hideOv()">Close</button></div></div></div><div class="ov" id="ov-int" onclick="if(event.target===this)hideOv()"><div class="ovp"><h3>🎤 Job Interview</h3><ul><li><b>10 lessons</b> to get you ready</li><li>Strengths and weaknesses, your CV, the company, and STAR stories</li><li>Answers built from your own experience: no memorizing</li><li>Confident delivery: pace, stress and tone</li><li>A mock interview at the end</li></ul><div class="go"><a class="btn" style="text-decoration:none" href="interview/index.html" onclick="this.href='interview/index.html?len='+LEN">Try a mini-lesson ▶</a><button class="btn alt" onclick="hideOv()">Close</button></div></div></div><div class="ov" id="ov-trv" onclick="if(event.target===this)hideOv()"><div class="ovp"><h3>✈️ Travel English</h3><ul><li><b>10 lessons</b>: immigration, hotel, restaurants, directions, airport, delays, shopping, sightseeing, health and meeting people</li><li>Sentences you can use in any country</li><li>Lots of speaking practice for real situations</li><li>World Traveling Club: one country to explore per lesson</li></ul><div class="go"><a class="btn" style="text-decoration:none" href="travel/index.html" onclick="this.href='travel/index.html?len='+LEN">Try a mini-lesson ▶</a><button class="btn alt" onclick="hideOv()">Close</button></div></div></div><div class="ov" id="ov-exm" onclick="if(event.target===this)hideOv()"><div class="ovp"><h3>📝 Exam Prep</h3><ul><li>TOEFL, IELTS, TOEIC, Cambridge and YLE (kids)</li><li>Complete or intensive courses</li><li>Reading, listening, speaking and writing: real test tasks</li><li>Strategies, time management and practice tests</li><li>Nanda's tips to do the exam more efficiently</li></ul><div class="go"><a class="btn" style="text-decoration:none" href="exams/index.html" onclick="this.href='exams/index.html?len='+LEN">Try a mini-lesson ▶</a><button class="btn alt" onclick="hideOv()">Close</button></div></div></div><div class="ov" id="ov-mix" onclick="if(event.target===this)hideOv()"><div class="ovp"><h3>🧭 Not sure yet?</h3><ul><li>Start with conversation and add what you need</li><li><b>English with Videos</b>: TED Talks, series and movies, with the language behind them</li><li><b>English Writing</b>: emails, essays, stories and articles</li><li><b>English Clubs</b>: reading, traveling and games</li><li>Kids and teens: complete courses with all four skills</li></ul><div class="go"><button class="btn alt" onclick="hideOv()">Close</button></div></div></div></section><section class="slide" id="s-structure" data-label="How a lesson works" style="--acc:#2F9BC4"><h2>How a lesson <em>works</em></h2><p class="inst">Our interactive slides, step by step.</p><div class="steps"><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'A question, a game or a quick chat about the topic: you start speaking right away.')">Warm-up<small>lead-in</small></div><div class="arrow">➜</div><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'New words and phrases in context: you guess the meaning, then practice with exercises.')">Key<br>language<small>vocabulary</small></div><div class="arrow">➜</div><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'Reading, listening, grammar and phrase exercises, step by step.')">Practice<small>exercises</small></div><div class="arrow">➜</div><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'Speaking activities between the exercises: games and guided conversations. I give you feedback.')">Speaking<small>games and chat</small></div><div class="arrow">➜</div><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'A short summary of what you learned, with your notes from class.')">Review<small>summary</small></div><div class="arrow">➜</div><div class="step" style="cursor:pointer" tabindex="0" onclick="stepInfo(this,'Optional online activities with instant answers, to practice on your own.')">Homework<small>optional</small></div></div><div class="detail">Six steps, one by one.</div></section><section class="slide" id="s-smart" data-label="Set your goal" style="--acc:#6C4BE0"><h2>Set your <em>goal</em></h2><p class="inst">A good goal is S.M.A.R.T. Let's build yours together.</p><div class="smart"><div class="s"><div class="l">S</div><b>Specific</b><p>What exactly will you be able to do?</p><textarea data-bind="sm0" placeholder="I want to be able to talk about my day and my opinions for 5 minutes."></textarea></div><div class="s"><div class="l">M</div><b>Measurable</b><p>How will you see your progress?</p><textarea data-bind="sm1" placeholder="I will practice 2 times a week and check my progress every month."></textarea></div><div class="s"><div class="l">A</div><b>Achievable</b><p>Is it possible for you right now?</p><textarea data-bind="sm2" placeholder="I can study 20 minutes after each lesson."></textarea></div><div class="s"><div class="l">R</div><b>Relevant</b><p>Why does it matter at this moment?</p><textarea data-bind="sm3" placeholder="I need it for my work or my plans."></textarea></div><div class="s"><div class="l">T</div><b>Time-bound</b><p>By when?</p><textarea data-bind="sm4" placeholder="In three months."></textarea></div></div><div class="goalout" id="goalout">Your goal will appear here as you write.</div></section><section class="slide" id="s-info" data-label="Important information" style="--acc:#E8735A"><h2>Important <em>information</em></h2><div class="grid g3"><div class="card c1"><h3>🗓️ Your availability</h3>What is your weekly availability?<br><br><b>25-min</b> lessons<br><b>50-min</b> lessons<br><b>80-min</b> lessons</div><div class="card c2"><h3>📝 Homework</h3>How do you feel about homework?<br><br>All lessons have <b>optional</b> activities for you to practice on your own.</div><div class="card c3"><h3>📂 Your Google Drive folder</h3>After every lesson you get:<br>• the <b>slides</b> (including today's)<br>• personalized <b>tips and notes</b><br>• optional <b>homework</b><br>• <b>pronunciation</b> material for your needs</div></div></section><section class="slide x50" id="s-clubs" data-label="English Clubs" style="--acc:#6C4BE0"><h2>Beyond lessons: <em>English Clubs</em></h2><p class="inst">More ways to practice.</p><div class="grid g3"><div class="fc" onclick="tog(this)"><span class="e">📚</span><div class="t">Reading Club</div><div class="q">Short stories and book discussions.</div><div class="back"><b>Before:</b> read the story twice (ideas, then language).<br><b>During:</b> share your opinion, see it from different perspectives.<br><b>After:</b> review the new words.</div></div><div class="fc" onclick="tog(this)"><span class="e">🌍</span><div class="t">World Traveling Club</div><div class="q">One country to explore per lesson.</div><div class="back">Share your view on other countries, your experience, and hear other students' points of view.</div></div><div class="fc" onclick="tog(this)"><span class="e">🎲</span><div class="t">Interactive English Club</div><div class="q">Games and conversations.</div><div class="back">Games and conversation challenges to practice speaking in a fun way.</div></div></div></section><section class="slide" id="s-next" data-label="What's next" style="--acc:#F0A800"><h2>What's <em>next</em>?</h2><p class="inst">Three simple steps.</p><div class="grid g3"><div class="card c1"><h3>1 · Choose your schedule</h3>25, 50 or 80 minutes, on the days that fit your week.</div><div class="card c2"><h3>2 · Get your plan</h3>I send your personalized plan and today's slides in your Drive folder.</div><div class="card c3"><h3>3 · First class</h3>We start your course!</div></div></section><section class="slide" id="s-msg" data-label="Message from Nanda" style="--acc:#6C4BE0"><h2>Message from <em>Nanda</em></h2><div class="namebar">Name: <input data-bind="nm" placeholder="Name" autocomplete="off"></div><div class="msg"><p>Hi <span data-out="nm" data-ph="______"><span class="ph">______</span></span>,</p><p>It was so awesome meeting you today!<br>Here are some ideas we talked about and some points I mapped out for us to work on during the course.</p><p id="msg-line">•</p><p id="msg-club"></p><p>Hope to hear back from you soon!<br>Kindest regards,<br>teacher Nanda.</p></div><p style="text-align:center;margin:12px 0 0"><button class="btn" onclick="copyMsg(this)">📋 Copy the message</button></p></section></main><footer class="bar"><button id="prev" onclick="nav(-1)">◀ Prev</button><div class="dots" id="dots"></div><span id="cnt"></span><button id="next" onclick="nav(1)">Next ▶</button><button class="nt" onclick="toggleNotes()">📝 Notes</button><button class="save" onclick="savePDF()">💾 Save Notes</button></footer><aside id="notes"><h4 id="noteHead"><span>📝 Notes · drag me</span><span style="cursor:pointer" onclick="toggleNotes()" onpointerdown="event.stopPropagation()">✕</span></h4><div class="tb"><button onmousedown="fmt(event,'bold')" title="Bold"><b>B</b></button><button onmousedown="fmt(event,'underline')" title="Underline"><u>U</u></button><span class="sep"></span><button class="c" style="background:#FFE066" title="Yellow" onmousedown="fmt(event,'hiliteColor','#FFE066')"></button><button class="c" style="background:#A8DCFF" title="Blue" onmousedown="fmt(event,'hiliteColor','#A8DCFF')"></button><button class="c" style="background:#B8F0C8" title="Green" onmousedown="fmt(event,'hiliteColor','#B8F0C8')"></button><button class="c" style="background:#FFC4DE" title="Pink" onmousedown="fmt(event,'hiliteColor','#FFC4DE')"></button><button title="Clear formatting" onmousedown="fmt(event,'removeFormat')">✕</button></div><div class="ed" id="noteEd" contenteditable="true"></div></aside><script>var PAGE_ORDER=0;
+var slides=[],cur=0,LEN=25,notesStore={};
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function sget(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+function sset(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
+function vis(){return $$('.slide').filter(function(s){return !(LEN==25&&s.classList.contains('x50'))})}
+function setLen(n,keep){LEN=n;sset('trialLen',String(n));$$('#lenChips button').forEach(function(b){b.classList.toggle('on',+b.dataset.len===n)});
+ var id=slides[cur]?slides[cur].id:null;slides=vis();buildDots();var i=slides.findIndex(function(s){return s.id===id});show(i>=0?i:0);planTimes();}
+function buildDots(){var d=$('#dots');d.innerHTML='';slides.forEach(function(){d.appendChild(document.createElement('i'))})}
+function show(i){saveNote();cur=Math.max(0,Math.min(slides.length-1,i));$$('.slide').forEach(function(s){s.classList.remove('show')});slides[cur].classList.add('show');
+ $$('#dots i').forEach(function(x,k){x.classList.toggle('on',k===cur)});$('#cnt').textContent=(cur+1)+'/'+slides.length;$('#prev').disabled=cur===0;$('#next').disabled=cur===slides.length-1;
+ slides[cur].scrollTop=0;if(window.onSlide)onSlide(slides[cur].id);loadNote();try{history.replaceState(null,'','#'+slides[cur].id)}catch(e){}}
+function nav(d){show(cur+d)}
+document.addEventListener('keydown',function(e){var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;if(e.key==='ArrowRight'||e.key==='PageDown')nav(1);if(e.key==='ArrowLeft'||e.key==='PageUp')nav(-1)});
+function tog(el){el.classList.toggle('open')}
+function pick(b){var q=b.closest('.q-item');if(q.classList.contains('done'))return;if(b.dataset.ok==='1'){b.classList.add('ok');q.classList.add('done');$$('.opt',q).forEach(function(o){if(o!==b)o.disabled=true})}else{b.classList.add('bad');b.disabled=true}}
+function rate(b){var g=b.parentNode;$$('button',g).forEach(function(x){x.classList.remove('on')});b.classList.add('on')}
+function choose(b){var g=b.closest('.either');$$('button',g).forEach(function(x){x.classList.remove('on')});b.classList.add('on')}
+function bindAll(){$$('[data-bind]').forEach(function(inp){inp.addEventListener('input',function(){refresh(inp.closest('.slide'))})});$$('.slide').forEach(refresh)}
+function refresh(sl){if(!sl)return;$$('input[data-bind],textarea[data-bind]',sl).forEach(function(inp){var k=inp.dataset.bind;$$('[data-out="'+k+'"]',sl).forEach(function(o){var v=inp.value.trim();o.innerHTML=v?'<b class="v"></b>':'<span class="ph">'+(o.dataset.ph||'______')+'</span>';if(v)o.firstChild.textContent=v})});
+ var g=$('#goalout',sl);if(g){var p=$$('textarea[data-bind]',sl).map(function(t){return t.value.trim()}).filter(Boolean);g.textContent=p.length?'My goal: '+p.join(' ')  :'Your goal will appear here as you write.'}}
+function spin(id,items){var st=window['_sp'+id]=window['_sp'+id]||{left:[],done:[]};if(!st.left.length){st.left=items.slice();st.done=[]}var i=Math.floor(Math.random()*st.left.length);var it=st.left.splice(i,1)[0];st.done.push(it);
+ var o=$('#'+id+'-out');o.textContent='🎲 …';setTimeout(function(){o.innerHTML=it;$('#'+id+'-hist').textContent='Done: '+st.done.join('  ·  ')},350)}
+function emoPick(b){var g=b.closest('.emo');if(!b.classList.contains('on')&&$$('button.on',g).length>=3)return;b.classList.toggle('on');var s=$$('button.on',g).map(function(x){return x.dataset.n});var o=$('#emo-out');if(s.length){o.innerHTML='You chose: <b class="v"></b>';$('b.v',o).textContent=s.join(' + ')}else{o.textContent='Choose up to three.'}}
+function rndCard(){var cs=$$('.fc.cat');cs.forEach(function(c){c.classList.remove('open');c.style.outline='none'});var c=cs[Math.floor(Math.random()*cs.length)];c.classList.add('open');c.style.outline='5px solid #14121F'}
+function tab(b){var w=b.closest('.slide');$$('.tabs .pill',w).forEach(function(x){x.classList.remove('on')});b.classList.add('on');$$('.panel',w).forEach(function(p){p.classList.toggle('on',p.id===b.dataset.p)})}
+function stepInfo(el,txt){var w=el.closest('.slide');$$('.step',w).forEach(function(x){x.style.outline='none'});el.style.outline='4px solid #14121F';$('.detail',w).textContent=txt}
+function planTimes(){$$('[data-t25]').forEach(function(e){e.textContent=(LEN==25?e.dataset.t25:e.dataset.t50)+' min'})}
+function go(p){location.href=p+'/index.html?len='+LEN}
+function curId(){return slides[cur]?slides[cur].id:''}
+function saveNote(){var e=$('#noteEd');if(!e||!slides[cur])return;var h=e.innerHTML.replace(/<br>$/,'');var k=PAGE_ORDER+'|'+String(100+allIdx(slides[cur]))+'|'+document.title.split(' — ')[0]+' · '+slides[cur].dataset.label;var o=readNotes();if(h.replace(/<[^>]*>/g,'').trim()){o[k]=h}else{delete o[k]}sset('trialNotes',JSON.stringify(o))}
+function allIdx(s){return $$('.slide').indexOf(s)}
+function readNotes(){try{return JSON.parse(sget('trialNotes')||'{}')}catch(e){return {}}}
+function loadNote(){var e=$('#noteEd');var k=PAGE_ORDER+'|'+String(100+allIdx(slides[cur]))+'|'+document.title.split(' — ')[0]+' · '+slides[cur].dataset.label;e.innerHTML=readNotes()[k]||''}
+function fmt(e,cmd,val){e.preventDefault();var ed=$('#noteEd');ed.focus();try{document.execCommand('styleWithCSS',false,true)}catch(x){}document.execCommand(cmd,false,val||null);saveNote()}
+(function(){var drag=null;document.addEventListener('pointerdown',function(e){var h=e.target.closest&&e.target.closest('#noteHead');if(!h)return;var n=$('#notes'),r=n.getBoundingClientRect();drag={dx:e.clientX-r.left,dy:e.clientY-r.top,w:r.width,h:r.height};n.style.left=r.left+'px';n.style.top=r.top+'px';n.style.right='auto';n.style.bottom='auto';e.preventDefault()});
+document.addEventListener('pointermove',function(e){if(!drag)return;var n=$('#notes');var x=Math.max(0,Math.min(window.innerWidth-120,e.clientX-drag.dx)),y=Math.max(0,Math.min(window.innerHeight-60,e.clientY-drag.dy));n.style.left=x+'px';n.style.top=y+'px'});
+document.addEventListener('pointerup',function(){drag=null})})();
+function toggleNotes(){$('#notes').classList.toggle('show');if($('#notes').classList.contains('show'))$('#noteEd').focus()}
+function savePDF(){saveNote();var o=readNotes();var keys=Object.keys(o).sort();if(!keys.length){alert('No notes to save yet!');return}
+ var base=location.href.split('#')[0].split('?')[0];var LESSON=/^https?:/.test(location.href)?base:'https://teacher-nanda.github.io/Trial-Lesson/';
+ var cards='';keys.forEach(function(k){var p=k.split('|');cards+='<div class="card"><div class="card-header">'+p[2]+'</div><div class="card-body">'+o[k]+'</div></div>'});
+ var today=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+ var css='body{font-family:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;max-width:820px;margin:0 auto;padding:0 0 32px;color:#1C2B3A;background:#fff}'+
+ '.hero{display:block;background:#2B1B5E;color:#fff;padding:14px 24px 16px;border-radius:0 0 16px 16px}.hero .kicker{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:#FFD84D;font-weight:800;margin:0 0 3px}'+
+ '.hero h1{font-family:Georgia,serif;font-size:1.85rem;margin:0 0 3px;line-height:1.15;color:#fff}.hero .dt{margin:0 0 9px;font-size:.98rem;color:#FFD84D;font-weight:700}.hero .row{display:flex;align-items:center;justify-content:space-between;gap:18px}.hero .row p{margin:0;font-size:1.02rem;line-height:1.45}'+
+ '.bigbtn{flex:none;display:inline-block;text-decoration:none;background:#FFD84D;color:#2B1B5E!important;font-weight:800;font-size:1.02rem;padding:9px 18px;border-radius:999px;white-space:nowrap}'+
+ '.notes-title{font-family:Georgia,serif;font-size:1.5rem;color:#2B1B5E;margin:16px 28px 12px}.card{border:1px solid #DDD;border-radius:12px;margin:0 28px 16px;overflow:hidden}'+
+ '.card-header{background:#2B1B5E;color:#fff;padding:8px 14px;font-weight:700;font-size:.92rem;break-after:avoid-page}.card-body{padding:12px 16px;font-size:1rem;line-height:1.7}[style*="background-color"]{color:#1a1a1a!important}.card-body,.card-body *{color:#1a1a1a}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}@media print{@page{margin:1.2cm}.hero{break-inside:avoid}}';
+ var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Notes – Trial Lesson</title><style>'+css+'</style></head><body><div class="hero"><p class="kicker">Conversational English with teacher Nanda</p><h1>Trial Lesson</h1><p class="dt">📅 '+today+'</p><div class="row"><p>Below are the notes from our trial lesson. Click the button to open the lesson slides again.</p><a class="bigbtn" href="'+LESSON+'" target="_blank">▶ Open the lesson</a></div></div><h2 class="notes-title">📝 Notes from class</h2>'+cards+'</body></html>';
+ var w=window.open('','_blank');w.document.write(html);w.document.close();setTimeout(function(){w.print()},700)}
+function copyMsg(btn){var t=$('.msg',btn.closest('.slide')).innerText;var done=function(){btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='📋 Copy the message'},1800)};
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fallback(t,done)})}else fallback(t,done)}
+function fallback(t,done){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(a);done()}
+window.addEventListener('DOMContentLoaded',function(){var q=(location.search.match(/len=(25|50)/)||[])[1];var n=+(q||sget('trialLen')||25);bindAll();slides=vis();
+ $$('#lenChips button').forEach(function(b){b.onclick=function(){setLen(+b.dataset.len)}});setLen(n);var h=location.hash.slice(1);var i=slides.findIndex(function(s){return s.id===h});if(i>0)show(i);
+ $('#noteEd').addEventListener('blur',saveNote);});
+var MSGS={"conv": ["Conversational English: we will discuss different topics, practice giving your opinion, understanding different accents, vocabulary, grammar structures and applying them to your daily life.", "I would also like to invite you to join our World Traveling Club. I'm sure you'll enjoy sharing your view on other countries and hearing other students' points of view."], "biz": ["Business English: we will practice meetings, presentations, small talk, emails and the language you need at work, step by step.", "I would also like to invite you to join our Interactive English Club. Games and conversations are a great way to practice speaking in a relaxed way."], "int": ["Job Interview English: we will practice the questions you will always hear, build your STAR stories and work on sounding confident.", "I would also like to invite you to join our Interactive English Club. It is a relaxed place to practice speaking with other students."], "trv": ["English for Traveling: we will practice everything from immigration to hotels, restaurants and directions, with sentences you can use in any country.", "I would also like to invite you to join our World Traveling Club. I'm sure you'll enjoy sharing your view on other countries and hearing other students' points of view."], "exm": ["Exam Preparation: we will cover all parts of the test, with strategies, time management and real practice, always connected to real life.", "I would also like to invite you to join our Reading Club. Short stories are a great way to improve your reading and vocabulary."], "mix": ["Conversational English to start, plus English with Videos, English Writing or English Clubs, whatever fits you best.", "I would also like to invite you to join one of our English Clubs. They are a relaxed way to practice speaking and meet other students."]};var CH=null;try{CH=sessionStorage.getItem('trialPath')}catch(e){}function showOv(k){CH=k;try{sessionStorage.setItem('trialPath',k)}catch(e){}$$('.path').forEach(function(x){x.classList.remove('sel')});$('#pc-'+k).classList.add('sel');$('#ov-'+k).classList.add('show')}function hideOv(){$$('.ov').forEach(function(o){o.classList.remove('show')})}function onSlide(id){hideOv();if(id==='s-msg'){var m=MSGS[CH];$('#msg-line').textContent=m?'• '+m[0]:'• (Choose the student’s goal on the “Why do you need English?” slide.)';$('#msg-club').textContent=m?m[1]:''}}</script></body></html>
