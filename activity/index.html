@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your Homework</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1B2A33;--paper:#FBF7F1;--coral:#F26B5B;--teal:#1F8A82;--muted:#6B7A83;--line:#E4DCD1}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:19px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding:32px 22px 60px}
+.kick{font:700 .8rem 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:var(--coral)}
+h1{font:700 2.6rem/1.1 'Fraunces',serif;margin:6px 0 10px}h1 em{color:var(--coral)}
+.sub{color:var(--muted);font-size:1.15rem;margin-bottom:22px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.tabs button{font:600 1rem 'Outfit';padding:9px 18px;border-radius:999px;border:1.5px solid var(--line);background:#fff;cursor:pointer}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.card{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:20px 24px;margin-bottom:16px}
+.card h2{font:700 1.4rem 'Fraunces',serif;margin-bottom:6px}
+.steps{display:grid;gap:12px}
+.st{display:flex;gap:14px;align-items:flex-start}
+.num{flex:none;width:34px;height:34px;border-radius:50%;background:var(--coral);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.prompt{background:#F6F1E8;border:1.5px dashed var(--line);border-radius:12px;padding:16px 18px;white-space:pre-wrap;font-size:1rem;line-height:1.55;max-height:340px;overflow:auto;margin:10px 0 14px}
+.btn{display:inline-block;text-decoration:none;font:700 1.05rem 'Outfit';padding:12px 24px;border-radius:999px;background:var(--coral);color:#fff;border:none;cursor:pointer}
+.btn.alt{background:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.ok{color:var(--teal);font-weight:700}
+.hint{color:var(--muted);font-size:.98rem}
+</style></head><body><div class="wrap">
+<div class="kick">Optional homework</div>
+<h1>Your <em>homework.</em></h1>
+<p class="sub">Want extra practice? Choose the AI activity that fits what you want to practice. It takes about 10 minutes: a short conversation in English with an AI partner. No pressure, and no wrong answers.</p>
+<div class="kick" style="margin-bottom:8px">Choose your activity</div><div class="tabs" id="tabs"></div>
+<div class="card"><h2 id="ttl"></h2><p id="desc" class="hint" style="font-size:1.1rem"></p></div>
+<div class="card"><h2>How it works</h2><div class="steps">
+<div class="st"><span class="num">1</span><div><b>Copy the prompt</b> below.</div></div>
+<div class="st"><span class="num">2</span><div><b>Open an AI chat</b> you like (ChatGPT, Claude or Gemini) and paste it.</div></div>
+<div class="st"><span class="num">3</span><div><b>Answer out loud or by typing.</b> Use the voice button if you can. Aim for full sentences.</div></div>
+<div class="st"><span class="num">4</span><div><b>At the end,</b> save the AI’s feedback and bring it to our first lesson.</div></div></div></div>
+<div class="card"><h2>Your prompt</h2>
+<div class="prompt" id="pr"></div>
+<div class="row"><button class="btn" id="cp">📋 Copy the prompt</button>
+<a class="btn alt" href="https://chatgpt.com/" target="_blank" rel="noopener">Open ChatGPT</a>
+<a class="btn alt" href="https://claude.ai/new" target="_blank" rel="noopener">Open Claude</a>
+<a class="btn alt" href="https://gemini.google.com/" target="_blank" rel="noopener">Open Gemini</a></div>
+<p class="hint" style="margin-top:10px" id="cpok"></p></div>
+<script>
+var COMMON="Rules for you, the AI:\n- Speak only English, in simple, clear American English. If my English is basic, keep your sentences short.\n- Ask me ONE question at a time and wait for my answer.\n- Do not correct me during the conversation. Just keep it natural and friendly.\n- Have about 8 exchanges, then stop.\n- At the end, give me: (1) three things I did well, (2) the three most useful corrections, each with my sentence and a better version, (3) five useful words or phrases I could use next time, and (4) one small goal for my first lesson.\n- Be kind and encouraging.\n\nStart now by greeting me and asking my name and why I am learning English.";
+var P={
+conversational:{t:'Everyday conversation',d:'Practice talking about your life, your routine and your opinions.',p:"You are my friendly English conversation partner. I am an adult learner who wants to speak naturally in everyday situations.\n\nTopics to explore, one at a time: my routine, free time, a place I want to visit, a recent experience, and one opinion I have. Ask follow-up questions like “Why?” and “Can you give me an example?” so I practice speaking longer.\n\n"+COMMON},
+business:{t:'Business English',d:'Practice talking about your job, your team and your daily work.',p:"You are my English practice partner for workplace communication. I am an adult learner who uses English, or wants to use it, at work.\n\nTopics to explore, one at a time: my job and responsibilities, a typical day, a recent project, a meeting or email situation, and a small problem at work. Ask follow-up questions and encourage me to give clear, professional answers.\n\n"+COMMON},
+interview:{t:'Job interview practice',d:'Practice answering the questions every interviewer asks.',p:"You are a friendly interviewer helping me practice for a job interview in English. I am an adult learner.\n\nFirst ask which job I want. Then ask the classic questions one at a time: Tell me about yourself, Why do you want this job, What are your strengths, Tell me about a challenge you solved, and Do you have any questions for us. If an answer is short, ask me to say more.\n\n"+COMMON.replace("asking my name and why I am learning English","asking my name and the job I want")},
+travel:{t:'English for traveling',d:'Talk about your travel experiences, plans and preferences.',p:"You are my friendly English conversation partner. I am an adult learner who loves, or wants to start, traveling.\n\nTopics to explore, one at a time: the most memorable trip I have taken, my dream vacation, whether I plan every detail or travel spontaneously, what I always pack, the best food I have tried while traveling, and a place in my country I would recommend. Ask follow-up questions like “Why?” and “Can you tell me more?” so I practice speaking longer. This is a normal conversation, not a role-play.\n\n"+COMMON.replace("asking my name and why I am learning English","asking my name and where I would like to travel")},
+exams:{t:'Test preparation',d:'Practice speaking answers in the style of English exams.',p:"You are my English speaking-test practice partner. I am an adult learner preparing for an English exam (TOEFL, IELTS or TOEIC).\n\nFirst ask which exam I am preparing for. Then give me speaking questions one at a time, like an exam: a personal question, an opinion question (“Do you agree or disagree…?”) and a short description task. Ask me to answer in about 45 seconds. After each answer, just move on to the next question.\n\n"+COMMON.replace("asking my name and why I am learning English","asking my name and which exam I am preparing for")}
+};
+var NAMES={conversational:'Conversational',business:'Business',interview:'Interview',travel:'Travel',exams:'Test prep'};
+var q=(location.search.match(/path=(\w+)/)||[])[1];if(!P[q])q='conversational';
+function show(k){document.getElementById('ttl').textContent=P[k].t;document.getElementById('desc').textContent=P[k].d;document.getElementById('pr').textContent=P[k].p;document.getElementById('cpok').textContent='';
+ Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(b){b.classList.toggle('on',b.dataset.k==k)});window._k=k}
+var SUG=q;document.getElementById('tabs').innerHTML=Object.keys(P).map(function(k){return '<button data-k="'+k+'">'+NAMES[k]+(k==SUG?' ★':'')+'</button>'}).join('')+'<p class="hint" style="width:100%;margin-top:4px">★ Suggested for you</p>';
+document.getElementById('tabs').onclick=function(e){var b=e.target.closest('button');if(b)show(b.dataset.k)};
+document.getElementById('cp').onclick=function(){var t=P[window._k].p,ok=function(){document.getElementById('cpok').innerHTML='<span class="ok">✓ Copied!</span> Now paste it into your AI chat.'};
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,fb)}else fb();
+ function fb(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(x){}document.body.removeChild(a);ok()}};
+show(q);
+</script></div></body></html>

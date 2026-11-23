@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trial Lesson v2 (draft) — with Nanda</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1B2A33;--paper:#FBF7F1;--coral:#F26B5B;--amber:#F2B138;--teal:#1F8A82;--violet:#6C63C9;--muted:#6B7A83;--line:#E4DCD1;--card:#fff;--ok:#1F8A5B;--bad:#C0392B}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+html{font-size:20px}body{font-family:'Outfit',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:1.2rem;line-height:1.4;overflow:hidden}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:700;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
+/* ---------- top bar ---------- */
+.top{display:flex;align-items:center;gap:14px;padding:8px 18px;border-bottom:1px solid var(--line);background:#fff;flex-wrap:wrap}
+.brand{font-family:'Fraunces',serif;font-weight:700;font-size:.95rem;line-height:1.1;margin-right:6px}
+.brand small{display:block;font:600 .55rem 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:var(--coral)}
+.grp{display:flex;align-items:center;gap:8px}
+.grp>span{font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.seg{display:flex;background:#F1EBE2;border-radius:999px;padding:3px}
+.seg button{padding:5px 11px;border-radius:999px;font-weight:600;font-size:.78rem;color:var(--muted)}
+.seg button.on{background:var(--ink);color:#fff}
+.timer{margin-left:auto;display:flex;align-items:center;gap:10px;font-weight:700}
+.timer .t{font-variant-numeric:tabular-nums;font-size:1.25rem;min-width:110px;text-align:right}
+.timer .t.late{color:var(--coral)}
+.timer button{padding:6px 14px;border-radius:999px;background:#F1EBE2;font-weight:600;font-size:.9rem}
+/* ---------- stage ---------- */
+.stage{position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;padding:24px 64px 14px;display:none;flex-direction:column;overflow:auto}
+.slide.active{display:flex}
+.kick{font:700 .85rem 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:var(--coral);margin-bottom:6px}
+h2{font-size:2.3rem;line-height:1.1;margin-bottom:6px}
+h2 em{font-style:italic;color:var(--coral)}
+.sub{font-size:1.15rem;color:var(--muted);margin-bottom:12px;max-width:980px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:16px 20px}
+.card h3{font-size:1.35rem;margin-bottom:4px}
+.pill{display:inline-block;padding:2px 12px;border-radius:999px;font-weight:700;font-size:.85rem;background:#EFEAFB;color:var(--violet)}
+.rv{cursor:pointer;position:relative;transition:transform .12s,border-color .2s}
+.rv:hover{border-color:var(--violet)}
+.rv .hid{display:none}
+.rv.on .hid{display:block}
+.rv.on .hide-on{display:none}
+.rv .dot{position:absolute;right:14px;top:12px;color:var(--violet);font-size:1rem}
+.rv.on .dot{display:none}
+.hid{color:var(--teal);font-weight:600;margin-top:6px}
+/* cover */
+.cover{justify-content:center;align-items:flex-start;overflow:hidden}
+.cover h1{font-size:4.4rem;line-height:1.02;margin:10px 0 18px}
+.cover h1 em{color:var(--coral);font-style:italic}
+.cover .by{font-size:1.4rem;color:var(--muted)}
+.blobs{position:absolute;right:-90px;top:-70px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFE0B8,#F9B9A8 55%,transparent 72%);opacity:.8;pointer-events:none}
+.blobs2{position:absolute;right:140px;bottom:-130px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,#CFE9E6,transparent 70%);pointer-events:none}
+/* hello */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:12px 0 18px}
+.stat{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:14px 18px}
+.stat b{display:block;font:700 2.3rem 'Fraunces',serif;color:var(--coral)}
+.stat span{color:var(--muted);font-size:1rem}
+.quote{font:600 1.6rem/1.35 'Fraunces',serif;max-width:900px}
+/* plan timeline */
+.tl{display:grid;gap:14px}
+.tlrow{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:stretch}
+.tlmin{border-radius:16px;color:#fff;font:700 2rem 'Fraunces',serif;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px}
+.tlmin small{font:600 .85rem 'Outfit';letter-spacing:.1em}
+.tlbody{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px 20px}
+.tlbody h3{font-size:1.3rem}
+.tlbody p{color:var(--muted);font-size:1.05rem}
+/* scale rows */
+.scale{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 18px;margin-bottom:10px}
+.scale .ed{min-height:1.7em;border-bottom:2px dashed var(--line);outline:none;padding:0 4px}.opts{display:flex;gap:6px}
+.opts button{padding:6px 14px;border-radius:999px;background:#F1EBE2;font-weight:600;font-size:.95rem}
+.opts button.on{background:var(--violet);color:#fff}
+/* word cards */
+.words{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.word{padding:20px 14px;text-align:center}
+.word b{font:700 1.55rem 'Fraunces',serif;display:block}
+.word .hid{font-size:1.05rem;color:var(--teal);margin-top:4px}
+/* mc */
+.mcq{margin-bottom:6px}
+.mcq .q{font-weight:700;font-size:1.15rem;margin-bottom:8px}
+.mcq .o{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mcq .o button{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;font-size:1.05rem}
+.mcq .o button.right{background:#E3F3EA;border-color:var(--ok)}
+.mcq .o button.wrong{background:#FBE5E1;border-color:var(--bad)}
+.mcq .fb{display:none;color:var(--ok);font-weight:600;margin-top:6px}
+.mcq.done .fb{display:block}
+/* spin / big card */
+.big{background:#fff;border:2px solid var(--ink);border-radius:22px;padding:34px 42px;font:600 2.2rem/1.25 'Fraunces',serif;min-height:210px;display:flex;align-items:center;justify-content:center;text-align:center;box-shadow:8px 8px 0 var(--amber)}
+.big small{display:block;font:600 1rem 'Outfit';color:var(--muted);margin-top:10px}
+.act{margin:18px 0 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--coral);color:#fff;padding:12px 26px;border-radius:999px;font-weight:700;font-size:1.05rem}
+.btn.alt{background:var(--ink)}
+.steps{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.pickc{cursor:pointer;transition:.15s}.pickc:hover{border-color:var(--violet)}.pickc.sel{background:#EFEAFB;border-color:var(--violet);box-shadow:0 0 0 2px var(--violet) inset}.pickc.sel h3::after{content:' ✓';color:var(--violet)}.pickrow .step{cursor:pointer}.pickrow .step.sel{background:var(--ink);color:#fff;border-color:var(--ink)}.step{background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 16px;font-weight:600}
+/* choose */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-bottom:12px}
+.vs .c{cursor:pointer;transition:.15s;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:16px 22px;font-size:1.25rem;font-weight:600;text-align:center}
+.vs .c:hover{border-color:var(--coral)}.vs .c.sel{background:var(--ink);color:#fff;border-color:var(--ink)}.vs .or{font:700 1.1rem 'Fraunces',serif;color:var(--coral)}
+/* mistakes */
+.mist{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mist .rv{padding:14px 20px}
+.mist .bad{font-size:1.3rem;font-weight:600;line-height:1.5}.mist .wrong{background:#FFD6D0;color:#7A1F14;padding:2px 10px;border-radius:8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}.mist .x{color:var(--bad);font-weight:800;font-size:1.4rem;margin-left:6px}
+.mist .why{font-size:.98rem;color:var(--muted);margin-top:2px}
+/* checklist chips */
+.chip{display:inline-block;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 16px;margin:4px 6px 4px 0;font-weight:600}
+.num{display:inline-flex;width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;align-items:center;justify-content:center;font-weight:700;margin-right:10px;flex:none}
+/* footer */
+.foot{display:flex;align-items:center;gap:12px;padding:10px 22px;border-top:1px solid var(--line);background:#fff}
+.secs{display:flex;gap:6px;flex:1;overflow:hidden}
+.sec{flex:1;padding:5px 10px;border-radius:10px;background:#F1EBE2;font-weight:600;font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sec.on{background:var(--ink);color:#fff}
+.sec.past{background:#DDEFEA;color:var(--teal)}
+.nb{padding:8px 20px;border-radius:999px;background:var(--ink);color:#fff;font-weight:700}
+.nb.ghost{background:#F1EBE2;color:var(--ink)}
+.cnt{font-weight:700;min-width:64px;text-align:center;color:var(--muted)}
+/* notes */
+#notes{position:fixed;right:30px;bottom:80px;width:360px;background:#fff;border:1.5px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 rgba(27,42,51,.12);display:none;z-index:50}
+#notes.on{display:block}
+#notes .bar{display:flex;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);cursor:move;background:#F6F1E8;border-radius:12px 12px 0 0}
+#notes .bar button{padding:2px 10px;border-radius:6px;background:#fff;border:1px solid var(--line);font-weight:700}
+#notes .bar .sw{width:20px;height:20px;border-radius:50%;border:1px solid var(--line)}
+#notes .ed{min-height:224px;max-height:392px;overflow:auto;padding:0 14px;font-size:1.1rem;outline:none;background-image:linear-gradient(transparent 31px,#D9D1C3 31px,#D9D1C3 32px);background-size:100% 32px;background-attachment:local;line-height:32px}
+.msg{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:20px 28px;font-size:1.12rem;line-height:1.5;max-width:980px}
+.msg [contenteditable]{outline:none;border-bottom:2px dashed var(--line)}
+.msg li{margin-left:20px}
+.hint{font-size:.95rem;color:var(--muted)}
+.note{position:absolute;left:64px;right:64px;bottom:8px;font-size:.88rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px}
+.pr{align-items:stretch}.pc{background:#fff;border:1.5px solid var(--line);border-top:8px solid var(--c);border-radius:18px;padding:22px 26px}.pc .ic{width:62px;height:62px;border-radius:50%;background:color-mix(in srgb,var(--c) 14%,#fff);display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:10px}.pc h3{font-size:1.7rem;margin-bottom:8px}.pc .q{font-weight:700;color:var(--muted);margin:10px 0 6px}.pc p{margin:6px 0;font-size:1.25rem}.pc b{font-weight:700}mark{background:#FFE9A8;padding:0 6px;border-radius:6px;font-weight:700;color:var(--ink)}
+.rd{display:grid;grid-template-columns:330px 1fr;gap:26px;align-items:start}.rdside{background:#F6E9D4;border-radius:18px;padding:20px 22px}.rdh{font:700 .72rem 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#9A6B12;margin-bottom:8px}.rdt{font-size:1.15rem;font-weight:500;padding:5px 0;border-bottom:1px dashed rgba(154,107,18,.3)}.rdt:last-child{border-bottom:none}.rdline{position:relative;display:grid;gap:10px}.rdline::before{content:'';position:absolute;left:22px;top:20px;bottom:20px;width:3px;background:var(--line);border-radius:2px}.rds{position:relative;display:flex;align-items:center;gap:18px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 18px 10px 12px}.rdn{flex:none;width:44px;height:44px;border-radius:50%;color:#fff;font:700 1.3rem 'Fraunces',serif;display:flex;align-items:center;justify-content:center;z-index:1}.rdtt{font:700 1.35rem 'Fraunces',serif}.rdd{font-size:1.1rem;color:var(--muted)}
+.hwcard{position:absolute;right:64px;top:50%;transform:translateY(-50%);width:360px;background:#fff;border:1.5px solid var(--line);border-top:8px solid var(--violet);border-radius:18px;padding:20px 24px;z-index:2;box-shadow:8px 8px 0 rgba(108,99,201,.12)}.hwk{font:700 .75rem 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:var(--violet);margin-bottom:4px}.hwcard h3{font-size:1.5rem;margin-bottom:10px}.hwl{display:grid;gap:8px}.hwl a{display:flex;justify-content:space-between;text-decoration:none;color:var(--ink);background:#F6F1E8;border-radius:12px;padding:10px 16px;font-weight:600;font-size:1.1rem}.hwl a:hover{background:#EFEAFB}.hwl a span{color:var(--violet)}
+</style></head><body>
+<div class="app">
+<header class="top">
+  <div class="brand"><small>Trial lesson</small>with Teacher Nanda</div>
+  <div class="grp"><span>Length</span><div class="seg" id="sLen"><button data-v="25">25 min</button><button data-v="50">50 min</button></div></div>
+  <div class="grp"><span>Student</span><div class="seg" id="sProf"><button data-v="br">BR</button><button data-v="tw">TW</button><button data-v="xx">Other</button></div></div>
+  <div class="grp"><span>Path</span><div class="seg" id="sPath"><button data-v="conv">Conversational</button><button data-v="biz">Business</button><button data-v="int">Interview</button><button data-v="trv">Travel</button><button data-v="exm">Exams</button></div></div>
+</header>
+<main class="stage" id="stage"></main>
+<footer class="foot">
+  <button class="nb ghost" id="prev">◀ Prev</button>
+  <div class="secs" id="secs"></div>
+  <span class="cnt" id="cnt"></span>
+  <button class="nb ghost" id="nbtn">Notes</button>
+  <button class="nb" id="next">Next ▶</button>
+</footer>
+</div>
+<div id="notes"><div class="bar" id="nbar"><b style="flex:1">Notes</b><button onclick="document.execCommand('bold')">B</button><button onclick="document.execCommand('underline')">U</button>
+<span class="sw" style="background:#FFF3A3" onclick="document.execCommand('hiliteColor',false,'#FFF3A3')"></span><span class="sw" style="background:#CDEFD9" onclick="document.execCommand('hiliteColor',false,'#CDEFD9')"></span><span class="sw" style="background:#FFD3CB" onclick="document.execCommand('hiliteColor',false,'#FFD3CB')"></span><button onclick="document.getElementById('notes').classList.remove('on')">✕</button></div>
+<div class="ed" id="ned" contenteditable="true"></div></div>
+
+<script>
+/* =====================================================================
+   DATA — everything that changes by student profile or path lives here.
+   To add a nationality: add one object to PROFILES (same keys).
+   ===================================================================== */
+var PROFILES = {
+ br: { name:'Brazil',
+  words:{title:'You already know hundreds of English words.', sub:'Say each one out loud. Then hear it in a real sentence.',
+   items:[['music','I listen to music every day.'],['video','I watch music videos every day.'],['television','What’s on television tonight?'],['guitar','He plays the guitar very well.'],['concert','The concert starts at eight.'],['festival','I go to a music festival every summer.'],['actor','Who is your favorite actor?'],['famous','That song is very famous.'],['hotel','My hotel is near the beach.'],['airport','The airport is far from the city.'],['passport','Don’t forget your passport!'],['restaurant','This restaurant is really good.']]},
+  sounds:{title:'Four sounds, and you sound clear.', sub:'These four make the biggest difference for Portuguese speakers.',
+   items:[['1','The TH sound','think · this · three · brother','Tongue between your teeth. Not “tink”, not “dis”.'],['2','Stop the extra vowel','book · work · night · big','End on the consonant. Not “booki”, not “nighti”.'],['3','The H is real','hotel · house · happy · hello','Push air out. In English the H is never silent.'],['4','The -ED ending','watch-ed /t/ · play-ed /d/ · want-ed /id/','Three sounds, one spelling. Most students never learn this.']]},
+  fix:{title:'Fix it! Spot the mistake.', sub:'These are the most common ones for Portuguese speakers. How would you say it?',
+   items:[['I have 30 years.','Age uses “to be”.','I’m 30 years old.'],['Is raining a lot today.','English needs a subject.','It’s raining a lot today.'],['I’m agree with you.','“Agree” is already a verb.','I agree with you.'],['I live here since 2020.','Since + present perfect.','I’ve lived here since 2020.'],['I’m pretending to buy a car.','False friend: “pretend” means fingir.','I’m planning to buy a car.'],['How is “saudade” in English?','Ask for a word with “say”.','How do you say “saudade” in English?']]}},
+ tw: { name:'Taiwan',
+  words:{title:'You already know hundreds of English words.', sub:'Say each one out loud. Then hear it in a real sentence.',
+   items:[['coffee','I drink coffee every morning.'],['toast','I have toast for breakfast.'],['cheese','Do you like cheese on your pizza?'],['sandwich','I’d like a chicken sandwich.'],['pizza','Let’s order a pizza tonight.'],['salad','I want a salad, please.'],['chocolate','This chocolate is very sweet.'],['karaoke','We go to karaoke on Friday.'],['guitar','He plays the guitar very well.'],['sofa','The cat is on the sofa.'],['taxi','Let’s take a taxi to the airport.'],['hotel','My hotel is near the station.']]},
+  sounds:{title:'Four sounds, and you sound clear.', sub:'These four make the biggest difference for Mandarin speakers.',
+   items:[['1','Finish the word','asks · desks · texts · worlds','Say every consonant at the end, even in groups. Don’t drop them and don’t add a vowel.'],['2','The TH sound','think · this · three · brother','Tongue between your teeth. Not “sink”, not “dis”.'],['3','Short and long vowels','ship / sheep · full / fool · live / leave','Short sounds are quick and relaxed. Long sounds stretch. The difference changes the word.'],['4','The -ED ending','walk-ed /t/ · play-ed /d/ · want-ed /id/','Three sounds, one spelling. Most students never learn this.']]},
+  fix:{title:'Fix it! Spot the mistake.', sub:'These are the most common ones for Mandarin speakers. How would you say it?',
+   items:[['Yesterday I go to the park.','English marks past time on the verb.','Yesterday I went to the park.'],['I have two sister.','Plural needs -s.','I have two sisters.'],['I very like coffee.','“Very” goes before adjectives, not verbs.','I really like coffee.'],['My mother, he is a nurse.','He = man, she = woman.','My mother is a nurse. She works at a hospital.'],['I want to buy car.','Singular nouns need “a” or “the”.','I want to buy a car.'],['Last week I am very busy.','Be + past time: was / were.','Last week I was very busy.']]}},
+ xx: { name:'Other',
+  words:{title:'You already know hundreds of English words.', sub:'Say each one out loud. Then hear it in a real sentence.',
+   items:[['taxi','Let’s take a taxi to the airport.'],['hotel','My hotel is near the station.'],['pizza','Let’s order a pizza tonight.'],['internet','The internet is very slow today.'],['coffee','I drink coffee every morning.'],['football','We play football on Sunday.'],['radio','I listen to the radio in the car.'],['bank','The bank closes at five.'],['hospital','The hospital is next to the park.'],['airport','The airport is far from the city.'],['tourist','The city is full of tourists.'],['music','I listen to music every day.']]},
+  sounds:{title:'Four sounds, and you sound clear.', sub:'These four help almost every learner. Listen for your own pattern.',
+   items:[['1','The TH sound','think · this · three · brother','Tongue between your teeth.'],['2','Finish the word','desk · six · cold · milk','End on the consonant. Don’t drop it.'],['3','Word stress','photograph · photography · photographer','One strong syllable. The stress moves with the word.'],['4','The -ED / -S endings','walk-ed · play-ed · want-ed · book-s','Small endings carry big meaning.']]},
+  fix:{title:'Fix it! Spot the mistake.', sub:'Mistakes almost everyone makes at some point. How would you say it?',
+   items:[['Yesterday I go to work.','Past time needs a past verb.','Yesterday I went to work.'],['She don’t like coffee.','He / she / it → doesn’t.','She doesn’t like coffee.'],['I very like it.','“Very” goes before adjectives.','I really like it.'],['I’m agree with you.','“Agree” is a verb.','I agree with you.'],['What means this word?','Questions need “do” or “does”.','What does this word mean?'],['I have 30 years.','Age uses “to be”.','I’m 30 years old.']]}}
+};
+var BIZWORDS = {title:'You already use these words at work.', sub:'Say each one out loud. Then hear it in a real sentence.',
+  items:[['email','I’ll send you an email.'],['meeting','We have a meeting at ten.'],['project','This is a big project.'],['client','The client is happy.'],['manager','My manager is very kind.'],['presentation','I have a presentation today.'],['report','Please read the report.'],['team','My team is great.'],['experience','I have five years of experience.'],['position','I’m applying for this position.'],['deadline','The deadline is Friday.'],['feedback','Thank you for your feedback.']]};
+var SPIN = {
+ conv:['What’s a place you would love to visit again? Why?','What is your favorite season? Why?','What is a habit you would like to change?','Describe your perfect day off.','What was the last series you watched? Would you recommend it?','What is something you are really good at?','Who is a person that inspires you? Why?'],
+ biz:['Describe your job in three sentences.','Tell me about a meeting you remember well.','What is the hardest part of your job?','Describe a project you are proud of.','How do you start a conversation with a new colleague?','What would you change about your workplace?'],
+ int:['Tell me about yourself.','Why do you want this job?','What are your strengths?','Tell me about a challenge you solved.','Where do you see yourself in five years?'],
+ trv:['What is the most memorable trip you have ever taken?','Describe your dream vacation.','Do you prefer to plan every detail or be spontaneous when you travel? Why?','What are three things you always pack? Why?','What is the best food you have tried while traveling?','Which place in your country would you recommend to a visitor? Why?'],
+ exm:['Describe a place you know well.','Do you agree that technology makes life easier? Why?','Talk about a person who influenced you.','What are the advantages of studying abroad?','Describe a book or film you enjoyed.','What changes would you make to your city?']
+};
+var MCQ = {
+ conv:[['You really enjoyed a movie. Which sentence sounds the most like a fluent speaker?',['I loved it. It was absolutely worth watching.','I liked it. It was a good film.','I am liking it in a very big way.'],0,'“Absolutely worth watching” is a natural, stronger way to say it.'],
+       ['You didn’t hear what your friend said. What do you say?',['Sorry, what is it?','Sorry, repeat to me, please.','Sorry, could you say that again?'],2,'“Could you say that again?” is polite and natural.'],
+       ['You don’t know a word in English. What do you say?',['How is “saudade” in English?','How do you say “saudade” in English?','What means “saudade” in English?'],1,'We use “How do you say… in English?”'],
+       ['A friend invites you out, but you’re tired. Which reply is polite?',['No, I’m tired.','I don’t want to go out today.','I’d love to, but I’m exhausted. Can we do it another day?'],2,'Thanks + a reason + another plan sounds friendly.']],
+ biz:[['You can’t attend a meeting. What do you write?',['I no go to the meeting.','I’m sorry, I won’t be able to attend the meeting. Could you share the notes?','Meeting is impossible for me.'],1,'Apologize, say the problem, and ask for the next step.'],
+       ['You need a colleague to send a file. What do you say?',['Send me the file now.','Could you send me the file when you have a moment?','You must send file.'],1,'“Could you…?” is polite and clear.'],
+       ['You need more time to finish a task. What do you say?',['I need more time. Sorry.','I’ll need until Friday to finish this. Is that okay?','I can’t do it now.'],1,'Give a clear date and check if it works.'],
+       ['You want to start a meeting. What do you say?',['Start.','Let’s get started. Thanks for joining, everyone.','Now we make the meeting.'],1,'Short, friendly and clear.']],
+ trv:[['The waiter brings the wrong dish. What do you say?',['This is wrong!','Excuse me, I think there’s a mistake. I ordered the chicken.','You made an error.'],1,'Polite opener + calm explanation.'],
+      ['You don’t understand the announcement. What do you say?',['What?','Sorry, I don’t understand. Could you repeat that, please?','Say again.'],1,'“Could you repeat that, please?” is clear and polite.'],
+      ['You want to pay. What do you say?',['I want the check.','Can I have the check, please?','Give me the money paper.'],1,'“Can I have… please?” works everywhere.'],
+      ['You are looking for the station. How do you start?',['Where station?','Excuse me, where is the station?','You know the station?'],1,'“Excuse me, where is…?” opens almost any question.']]
+};
+var UNITS=['Food & Cooking','Family & Personality','Money & Life','Movies & Appearance','Education & Homes','Work & Shopping','Transportation','Manners & Ability','Sports & Relationships','Luck & Technology','Idols & Icons','Crime & Mystery'];
+var THIS=[['A month in one city','Ten cities in a month'],['Never hear music again','Never watch films again'],['Live in a big city','Live in a small town'],['Cook at home every day','Eat out every day'],['Go back to any year in the past','See any year in the future'],['Live by the beach','Live in the mountains']];
+var ROAD={
+ conv:{sub:'Every lesson has its own topic and follows the same clear structure.',topics:['Food & Cooking','Family & Personality','Money & Life','Movies & Appearance','Education & Homes','Work & Shopping','…and more'],steps:[['Warm-up chat','We start by talking about the topic of the day.'],['Vocabulary in context','See the word, guess the meaning, then use it.'],['Grammar & key expressions','Every new idea is followed by practice.'],['Listening & reading','Real recordings and short texts on the topic.'],['Speaking games','Spinning wheel, two truths and a lie, and more.'],['Pronunciation & review','Sounds that matter, plus a summary of the lesson.']]},
+ biz:{sub:'Business English built around your job, with real articles and speaking games.',topics:['Meetings','Emails','Presentations','Negotiating','International teams','Small talk'],steps:[['Quick review chat','A few questions about the last lesson.'],['Business vocabulary','Words you will really use at work.'],['A real article','From real sources: main idea first, then details.'],['Key language','Meaning, listening, then how to say it.'],['Speaking games','Dice, wheel and bingo with the lesson language.'],['Workplace conversations','Guided speaking about real situations at work.']]},
+ int:{sub:'A step-by-step course that prepares you for the questions every interviewer asks.',topics:['Tell me about yourself','Strengths & weaknesses','Past experience','Challenges you solved','Your questions for them'],steps:[['Question of the lesson','One typical interview question to focus on.'],['Language for strong answers','Phrases and vocabulary that sound confident.'],['Model answers','Listen, read and see how a good answer is built.'],['Build your own answer','You create your answer with your real experience.'],['Say it with confidence','Pronunciation, rhythm and delivery.'],['Feedback & polish','We improve your answer together.']]},
+ trv:{sub:'English you can use on your next trip, one situation at a time.',topics:['Immigration','Hotel','Restaurants','Asking for information','…and more'],steps:[['Quick-fire review','Fast questions about earlier lessons.'],['Situation vocabulary','Words and phrases for the situation.'],['Key phrases & listening','Hear how real travelers say it.'],['Practice','Exercises with realistic situations.'],['What could you say?','Guided speaking: you decide how to respond.'],['Speaking game','A dice game with the lesson vocabulary.']]},
+ exm:{sub:'Exam preparation that follows the current test format.',topics:['Listen and Repeat','Interview','Writing'],steps:[['Know the task','What the exam asks you to do.'],['Model answers','Listen to and read high-scoring answers.'],['Strategy & key language','Structure and phrases for each task.'],['Your answer','You answer in the exam format.'],['Score & feedback','Each answer is scored from 1 to 5 with feedback.'],['Progress report','You keep a record of your scores and next steps.']]}
+};
+var SECTIONS = {
+ 25:[['meet','Meet',3,'#F26B5B','Who I am and how today works.'],['know','Get to know you',5,'#F2B138','Your story, your goals, a quick self-check.'],['mini','Mini-lesson',10,'#1F8A82','A real taste of the course you chose.'],['plan','Plan & next steps',7,'#6C63C9','The course, how we work, what happens next.']],
+ 50:[['meet','Meet',4,'#F26B5B','Who I am and how today works.'],['know','Get to know you',8,'#F2B138','Your story, a warm-up game, a quick self-check.'],['mini','Mini-lesson',18,'#1F8A82','Input, practice and a speaking game from the course you chose.'],['sound','Your sound & mistakes',8,'#2B6CB0','The sounds and mistakes that matter most for your language.'],['plan','Plan & next steps',12,'#6C63C9','Your goal, the course roadmap, how we work, what happens next.']]
+};
+/* =====================================================================
+   SLIDES — each returns HTML. `sec` = section id, `only50` = 50-min only.
+   ===================================================================== */
+function customRow(){return '<div class="scale"><div class="ed" contenteditable="true" style="font-weight:600;font-size:1.15rem"></div><div class="opts">'+['Never','Sometimes','Often','Always'].map(function(o){return '<button>'+o+'</button>'}).join('')+'</div></div>'}
+function fixHtml(P){return head('Common mistakes',P.fix.title.replace('Fix it!','<em>Fix it!</em>'),P.fix.sub)+'<div class="mist">'+P.fix.items.map(function(w){return '<div class="card rv"><span class="dot">▸</span><div class="bad"><span class="wrong">'+esc(w[0])+'</span> <span class="x">✗</span></div><div class="hid">✓ '+esc(w[2])+'<div class="why">'+esc(w[1])+'</div></div></div>'}).join('')+'</div>'}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function head(k,t,s){return '<div class="kick">'+k+'</div><h2>'+t+'</h2>'+(s?'<p class="sub">'+s+'</p>':'')}
+function wordsSlide(d){return head('Start here',d.title.replace('hundreds of English words','<em>hundreds of English words</em>'),d.sub)+'<div class="grid words">'+d.items.map(function(w){return '<div class="card word rv"><b>'+esc(w[0])+'</b><div class="hid">'+esc(w[1])+'</div></div>'}).join('')+'</div>'}
+function mcqSlide(list,kick,title,sub){return head(kick,title,sub)+list.map(function(q,i){return '<div class="mcq" data-a="'+q[2]+'"><div class="q">'+(i+1)+'. '+esc(q[0])+'</div><div class="o">'+q[1].map(function(o,j){return '<button data-j="'+j+'">'+esc(o)+'</button>'}).join('')+'</div><div class="fb">✓ '+esc(q[3])+'</div></div>'}).join('')}
+function spinSlide(kick,title,list,key){return head(kick,title,'Pick a card. Answer in as many sentences as you can.')+'<div class="big" id="spin-'+key+'"><div>Ready?<small>Press the button for a question.</small></div></div><div class="act"><button class="btn" data-spin="'+key+'">Give me a question →</button><div class="steps"><span class="step">① your answer</span><span class="step">② because…</span><span class="step">③ for example…</span></div></div>'}
+function build(S){
+ var P=PROFILES[S.prof], p=S.path, L=[];
+ // --- MEET
+ L.push({id:'cover',sec:'meet',cls:'cover',html:'<div class="blobs"></div><div class="blobs2"></div><div class="kick">Trial lesson</div><h1>Your English<br><em>starts here.</em></h1><div class="by">with Teacher Nanda</div>'+'<div class="hwcard"><div class="hwk">📝 Homework</div><h3>Choose your homework</h3><div class="hwl"><a href="#" data-act="conversational" target="_blank" rel="noopener">Conversational <span>→</span></a><a href="#" data-act="business" target="_blank" rel="noopener">Business <span>→</span></a><a href="#" data-act="interview" target="_blank" rel="noopener">Interview <span>→</span></a><a href="#" data-act="travel" target="_blank" rel="noopener">Travel <span>→</span></a><a href="#" data-act="exams" target="_blank" rel="noopener">Exams <span>→</span></a></div></div>'});
+ L.push({id:'hello',sec:'meet',html:head('Hello','I’m <em>Nanda.</em>','Brazilian. English teacher since 2020. Once upon a time, a student just like you.')+'<div class="stats"><div class="stat"><b>8,600+</b><span>lessons taught</span></div><div class="stat"><b>120h</b><span>Cambridge CELTA · Pass A</span></div><div class="stat"><b>28</b><span>countries visited</span></div><div class="stat"><b>3</b><span>languages fluently</span></div></div><p class="quote">I learned English the same way you’re doing it now — so I know exactly where it gets hard.</p>'});
+ // --- GET TO KNOW
+ var topics=[['🛋️','Routine',['What does a typical day in your life look like?','What time do you usually wake up?','What’s one habit you’d like to improve?']],['🎸','Free time',['What do you usually do for fun?','Would you rather go out or stay at home on weekends?']],['👨‍👩‍👧','Family',['Do you have a big or small family?','How often do you see your relatives?']],['✈️','Travel',['Where have you been?','Which is your favorite trip?','If you could go anywhere tomorrow, where would you go?']],['💬','English usage',['Do you use English in your daily life?','How have you practiced English before?']],['🎯','Goals',['What would you like to be able to do in English?','How much time can you study in a week?']]];
+ L.push({id:'know',sec:'know',html:head('Getting to know each other',S.len==25?'Pick three topics.':'Six topics. Talk about as many as you like.','')+'<div class="grid g3">'+topics.map(function(t){return '<div class="card rv"><span class="dot">▸</span><h3>'+t[0]+' '+t[1]+'</h3><div class="hid">'+t[2].map(function(q){return '<div style="color:var(--ink);font-weight:500;margin-top:4px">• '+esc(q)+'</div>'}).join('')+'</div></div>'}).join('')+'</div>'});
+ if(S.len==50) L.push({id:'this',sec:'know',html:head('Warm-up','This <em>or</em> that?','Pick one. Then tell me why. The “why” is the real exercise.')+THIS.slice(0,4).map(function(t){return '<div class="vs"><div class="c">'+esc(t[0])+'</div><div class="or">or</div><div class="c">'+esc(t[1])+'</div></div>'}).join('')+'<div class="steps"><span class="step">I’d rather…</span><span class="step">because…</span><span class="step">For example…</span></div>'});
+ var qs=[['I understand English, but the words don’t come out.'],['I freeze when I have to speak.'],['I can follow series and videos without subtitles.'],['I worry about making mistakes.'],['I use English in my daily life.']];
+ L.push({id:'today',sec:'know',html:head('Your English today','How often is this <em>you?</em>','Be honest. There are no wrong answers.')+qs.map(function(q){return '<div class="scale"><div style="font-weight:600;font-size:1.15rem">'+esc(q[0])+'</div><div class="opts">'+['Never','Sometimes','Often','Always'].map(function(o){return '<button>'+o+'</button>'}).join('')+'</div></div>'}).join('')+'<div id="custom-rows">'+customRow()+'</div><div class="act" style="margin-top:6px"><button class="btn alt" data-addrow>+ Add your own difficulty</button></div>'});
+ // --- MINI-LESSON
+ L.push({id:'words',sec:'mini',html:wordsSlide(p=='biz'||p=='int'?BIZWORDS:P.words)});
+ if(p=='conv'){
+  L.push({id:'songs',sec:'mini',html:head('Key language','Why songs feel <em>too fast.</em>','Singers and actors never say every word. What do they really say?')+'<div class="grid g4">'+[['gonna','going to','I’m gonna call you later.'],['wanna','want to','I wanna see that movie.'],['gotta','got to / have to','I gotta go now.'],['’cause','because','I’m late ’cause of the traffic.'],['lemme','let me','Lemme check.'],['kinda','kind of','It’s kinda expensive.'],['y’know','you know','It’s, y’know, complicated.'],['ain’t','isn’t / aren’t / haven’t','That ain’t right.']].map(function(w){return '<div class="card rv word"><b>'+w[0]+'</b><div class="hid">= '+w[1]+'<br><span style="color:var(--ink);font-weight:500">“'+w[2]+'”</span></div></div>'}).join('')+'</div><p class="quote" style="font-size:1.3rem;margin-top:14px">Once you hear these, half of every song opens up.</p>'});
+ } else if(p=='trv'){
+  L.push({id:'eight',sec:'mini',html:head('Travel','Eight sentences. <em>Any country.</em>','With these you can travel tomorrow. Say each one, then finish it.')+'<div class="grid g4">'+[['Excuse me, where is…','…the station? …the bathroom?'],['How much is it?','You’ll hear a number: “It’s fifteen euros.”'],['Can I have…, please?','Can I have the menu, please?'],['I’d like…','I’d like a coffee, please. (= polite “I want”)'],['Sorry, I don’t understand.','Can you write it down for me?'],['Could you repeat that?','Always add “please”.'],['Could you speak slowly?','…more slowly, please?'],['The check, please.','Can I have the check, please?']].map(function(w){return '<div class="card rv"><h3>'+esc(w[0])+'</h3><div class="hid">'+esc(w[1])+'</div></div>'}).join('')+'</div>'});
+  L.push({id:'mcq',sec:'mini',html:mcqSlide(MCQ.trv,'Practice','What would <em>you say?</em>','Choose the most natural, polite option.')});
+ } else if(p=='biz'){
+  L.push({id:'bizlang',sec:'mini',html:head('Key language','Phrases that make you sound <em>professional.</em>','Where would you use each one? Say it out loud.')+'<div class="grid g3">'+[['📧','Emails',['“I’m writing to…”','“Please find attached…”','“Let me know if you have any questions.”']],['🗓️','Meetings',['“Let’s get started.”','“Could you share your screen?”','“Let’s go over the next steps.”']],['🤝','Working together',['“I’ll get back to you by Friday.”','“Could you send me the report?”','“Thanks for your help with this.”']]].map(function(w){return '<div class="card rv"><span class="dot">▸</span><h3>'+w[0]+' '+w[1]+'</h3><div class="hid">'+w[2].map(function(l){return '<div style="margin-top:4px">'+esc(l)+'</div>'}).join('')+'</div></div>'}).join('')+'</div>'});
+  L.push({id:'mcq',sec:'mini',html:mcqSlide(MCQ.biz,'Practice','Same message. <em>More professional.</em>','Choose what sounds best at work.')});
+ } else if(p=='int'){
+  L.push({id:'qs',sec:'mini',html:head('Job interview','The questions you’ll <em>always</em> hear.','Every interview has these. Here is an easy way to start each answer.')+'<div class="grid g2">'+[['“Tell me about yourself.”','I’m a nurse with five years of experience…'],['“Why do you want this job?”','I want this job because…'],['“What are your strengths?”','I’m good at… / I’m a hard worker.'],['“What is a weakness?”','Sometimes I… but I’m working on it.'],['“Why should we hire you?”','Because I can help you with…'],['“Do you have any questions?”','Yes — can you tell me about…?']].map(function(w){return '<div class="card rv"><span class="dot">▸</span><h3>'+w[0]+'</h3><div class="hid">'+esc(w[1])+'</div></div>'}).join('')+'</div>'});
+  L.push({id:'conf',sec:'mini',html:head('Sound confident','It’s not just the words — it’s <em>how you say them.</em>','Four small habits that make you sound sure of yourself.')+'<div class="grid g2">'+[['1','Slow down','Pause between ideas. Silence sounds calm, not nervous.'],['2','Stress the key word','“I’m really interested in this position.”'],['3','End going down','A falling tone sounds finished and confident.'],['4','Smile — they hear it','Warmth comes through your voice on a call.']].map(function(w){return '<div class="card rv"><span class="dot">▸</span><h3><span class="num">'+w[0]+'</span>'+w[1]+'</h3><div class="hid">'+esc(w[2])+'</div></div>'}).join('')+'</div>'});
+ } else {
+  L.push({id:'exm',sec:'mini',html:head('Exam prep','Mini-lesson slot','This path keeps its current page. Link it here: ../exams/index.html')+'<div class="card"><h3>To port</h3><p class="sub" style="margin:0">Same slot as the other paths: 1 input slide + 1 practice slide + 1 speaking card. Tell me the exam (TOEFL / IELTS / TOEIC) and I will build it from your TOEFL material.</p></div>'});
+ }
+ L.push({id:'spin',sec:'mini',html:spinSlide('Speaking','Your turn: <em>tell me about…</em>',SPIN[p]||SPIN.conv,p)});
+ if(S.len==25) L.push({id:'fix',sec:'mini',html:fixHtml(P)});
+ if(S.len==50 && p=='conv') L.push({id:'fluency',sec:'mini',html:head('Fluency tools','Small phrases that make you <em>sound relaxed.</em>','What can you say in each situation?')+'<div class="grid g3">'+[['🤔','You need time to think',['“Well, let me think…”','“That’s a good question.”','“How can I put this?”']],['💡','Giving your opinion',['“In my opinion…”','“If you ask me…”','“I’d say…”']],['👍','Agreeing',['“Exactly!”','“That’s so true.”','“I couldn’t agree more.”']]].map(function(w){return '<div class="card rv"><span class="dot">▸</span><h3>'+w[0]+' '+w[1]+'</h3><div class="hid">'+w[2].map(function(l){return '<div style="margin-top:4px">'+esc(l)+'</div>'}).join('')+'</div></div>'}).join('')+'</div>'});
+ // --- YOUR SOUND (50 only)
+ if(S.len==50){
+  L.push({id:'sounds',sec:'sound',html:head('Pronunciation',P.sounds.title.replace('you sound clear','<em>you sound clear</em>'),P.sounds.sub)+'<div class="grid g2">'+P.sounds.items.map(function(w){return '<div class="card rv"><span class="dot">▸</span><h3><span class="num">'+w[0]+'</span>'+esc(w[1])+'</h3><div style="font-size:1.25rem;font-weight:600">'+esc(w[2])+'</div><div class="hid">'+esc(w[3])+'</div></div>'}).join('')+'</div>'});
+  L.push({id:'fix',sec:'sound',html:fixHtml(P)});
+ }
+ // --- PLAN & NEXT
+ if(S.len==50){
+  L.push({id:'goal',sec:'plan',html:head('Where you’re going','In six months, <em>I want to…</em>','Pick the one that sounds most like you.')+'<div class="grid g3">'+[['✈️','Travel','Handle any airport, hotel or conversation with strangers'],['💼','Work','Speak up in meetings without rehearsing first'],['🎤','Interviews','Tell my story in English and get the job'],['📝','Exams','TOEIC, TOEFL or IELTS — with the score I need'],['🏡','Everyday life','Series without subtitles, small talk without panic'],['🗣️','Sound natural','Pronunciation, rhythm and a clear American accent']].map(function(w){return '<div class="card pickc"><h3>'+w[0]+' '+w[1]+'</h3><div class="hint" style="font-size:1.1rem">'+w[2]+'</div></div>'}).join('')+'</div>'});
+  L.push({id:'smart',sec:'plan',html:head('Set your goal','A good goal is <em>S.M.A.R.T.</em>','Build yours together. Your goal appears below as you write.')+'<div class="grid" style="grid-template-columns:repeat(5,minmax(0,1fr))">'+[['S','Specific','What exactly will you be able to do?'],['M','Measurable','How will you see your progress?'],['A','Achievable','Is it possible for you right now?'],['R','Relevant','Why does it matter at this moment?'],['T','Time-bound','By when?']].map(function(w){return '<div class="card"><h3 style="color:var(--coral);font-size:2rem">'+w[0]+'</h3><b>'+w[1]+'</b><div class="hint">'+w[2]+'</div></div>'}).join('')+'</div><div class="card" style="margin-top:16px"><div class="hint">My goal</div><div contenteditable="true" style="min-height:70px;font-size:1.3rem;outline:none" id="goalbox"></div></div>'});
+ }
+ var R=ROAD[p]||ROAD.conv;
+ L.push({id:'road',sec:'plan',html:head('Course roadmap','Every lesson follows the <em>same rhythm.</em>',R.sub)+'<div class="rd"><aside class="rdside"><div class="rdh">Topics you will explore</div>'+R.topics.map(function(t){return '<div class="rdt">'+esc(t)+'</div>'}).join('')+'<div class="rdh" style="margin-top:18px">After every lesson</div><div class="rdt">📄 Your notes</div><div class="rdt">📝 Optional homework</div></aside><div class="rdline">'+R.steps.map(function(w,i){var c=['#F26B5B','#E0A21B','#2B6CB0','#6C63C9','#F26B5B','#E0A21B'][i];return '<div class="rds"><span class="rdn" style="background:'+c+'">'+(i+1)+'</span><div><div class="rdtt">'+esc(w[0])+'</div><div class="rdd">'+esc(w[1])+'</div></div></div>'}).join('')+'</div></div>'});
+ if(S.len==50) L.push({id:'how',sec:'plan',html:head('How we work','My side of the <em>deal.</em>','')+'<div class="grid g3">'+[['🎯','Built for you','Your goals, your topics, your pace.'],['🗣️','You do the talking','Interactive activities, not lectures.'],['✍️','Corrections as we go','Live and kind, plus notes after class.'],['🔊','A clear accent','Pronunciation in every lesson.'],['🌍','Real situations','Vocabulary tied to where you use it.'],['🛡️','Safe to be wrong','Mistakes are how everyone learns.']].map(function(w){return '<div class="card"><h3>'+w[0]+' '+w[1]+'</h3><div class="hint" style="font-size:1.05rem">'+w[2]+'</div></div>'}).join('')+'</div>'});
+ L.push({id:'info',sec:'plan',html:head('Important information','The practical <em>part.</em>','')+'<div class="grid g3 pr">'+
+ '<div class="pc" style="--c:var(--coral)"><div class="ic">🗓️</div><h3>Your schedule</h3><div class="q">How long is each lesson?</div><div class="steps pickrow"><span class="step">25 min</span><span class="step">50 min</span></div><div class="q">How many times per week?</div><div class="steps pickrow"><span class="step">1×</span><span class="step">2×</span><span class="step">3×</span><span class="step">4× or more</span></div></div>'+
+ '<div class="pc" style="--c:var(--teal)"><div class="ic">📝</div><h3>Homework</h3><div class="q">How do you feel about homework?</div><p>All lessons have <mark>optional</mark> activities.</p><p>Bring your <b>questions</b> to class.</p></div>'+
+ '<div class="pc" style="--c:var(--violet)"><div class="ic">📂</div><h3>Your Google Drive folder</h3><div class="q">After every lesson, you get:</div><p>✓ The <mark>slides</mark></p><p>✓ Your <mark>personal notes</mark></p><p>✓ Optional <mark>homework</mark></p><p>✓ <mark>Pronunciation</mark> material</p></div></div>'});
+ L.push({id:'msg',sec:'plan',html:head('After class','Message from <em>Nanda.</em>','')+'<div class="msg"><div>Hi <span contenteditable="true" style="display:inline-block;min-width:140px">______</span>,</div><br><div>It was so awesome meeting you today!<br>Here are some ideas we talked about and some points I mapped out for us to work on during the course.</div><ul><li contenteditable="true">&nbsp;</li><li contenteditable="true">&nbsp;</li></ul><div>Hope to hear back from you soon!<br>Kindest regards,<br>teacher Nanda.</div></div><div class="act"><button class="btn alt" id="copymsg">📋 Copy the message</button></div>'});
+ return L;
+}
+/* =====================================================================
+   ENGINE
+   ===================================================================== */
+var S={len:25,prof:'br',path:'conv',i:0}, SL=[], secStart=0, TM={run:false,t:0,iv:null};
+try{var sv=JSON.parse(sessionStorage.getItem('tl2')||'null'); if(sv){S.len=sv.len;S.prof=sv.prof;S.path=sv.path}}catch(e){}
+function $(s,r){return (r||document).querySelector(s)} function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function save(){try{sessionStorage.setItem('tl2',JSON.stringify({len:S.len,prof:S.prof,path:S.path}))}catch(e){}}
+function render(keepId){
+ var curId=keepId||(SL[S.i]&&SL[S.i].id); SL=build(S);
+ var st=$('#stage'); st.innerHTML=SL.map(function(s,i){return '<section class="slide '+(s.cls||'')+'" id="sl-'+s.id+'" data-sec="'+s.sec+'">'+s.html+'</section>'}).join('');
+ var idx=SL.map(function(s){return s.id}).indexOf(curId); S.i=idx>=0?idx:Math.min(S.i,SL.length-1);
+ ['sLen','sProf','sPath'].forEach(function(id){var k={sLen:'len',sProf:'prof',sPath:'path'}[id];$$('#'+id+' button').forEach(function(b){b.classList.toggle('on',b.dataset.v==String(S[k]))})});
+ show(); tick();
+ var ACT=/_draft-v2/.test(location.pathname)?'../activity/index.html':'activity/index.html';
+ $$('[data-act]').forEach(function(a){a.href=ACT+'?path='+a.dataset.act});
+}
+function show(){
+ $$('.slide').forEach(function(s,i){s.classList.toggle('active',i==S.i)});
+ var sec=SL[S.i].sec, secs=SECTIONS[S.len];
+ var si=secs.map(function(s){return s[0]}).indexOf(sec);
+ $('#secs').innerHTML=secs.map(function(s,i){return '<div class="sec '+(i==si?'on':i<si?'past':'')+'">'+s[1]+'</div>'}).join('');
+ $('#cnt').textContent=(S.i+1)+' / '+SL.length;
+}
+function go(d){S.i=Math.max(0,Math.min(SL.length-1,S.i+d));show()}
+function fmt(s){var m=Math.floor(s/60),x=s%60;return m+':'+(x<10?'0':'')+x}
+function tick(){}
+[['sLen','len',Number],['sProf','prof',String],['sPath','path',String]].forEach(function(c){$('#'+c[0]).onclick=function(e){var b=e.target.closest('button');if(!b)return;S[c[1]]=c[2](b.dataset.v);save();render(SL[S.i].id)}});
+$('#prev').onclick=function(){go(-1)};$('#next').onclick=function(){go(1)};
+$('#nbtn').onclick=function(){$('#notes').classList.toggle('on')};
+document.addEventListener('keydown',function(e){if(e.target.isContentEditable||/input|textarea/i.test(e.target.tagName))return;if(e.key=='ArrowRight'||e.key==' ')go(1);if(e.key=='ArrowLeft')go(-1)});
+document.addEventListener('click',function(e){
+ var pcd=e.target.closest('.pickc'); if(pcd){pcd.classList.toggle('sel');return}
+ var ps=e.target.closest('.pickrow .step'); if(ps){var w=ps.classList.contains('sel');$$('.step',ps.parentNode).forEach(function(c){c.classList.remove('sel')});if(!w)ps.classList.add('sel');return}
+ var ar=e.target.closest('[data-addrow]'); if(ar){var cr=document.getElementById('custom-rows');cr.insertAdjacentHTML('beforeend',customRow());var eds=cr.querySelectorAll('.ed');eds[eds.length-1].focus();return}
+ var pk=e.target.closest('.vs .c'); if(pk){var was=pk.classList.contains('sel');$$('.c',pk.parentNode).forEach(function(c){c.classList.remove('sel')});if(!was)pk.classList.add('sel');return}
+ var rv=e.target.closest('.rv'); if(rv){rv.classList.toggle('on');return}
+ var sc=e.target.closest('.scale .opts button'); if(sc){$$('button',sc.parentNode).forEach(function(b){b.classList.remove('on')});sc.classList.add('on');return}
+ var mc=e.target.closest('.mcq .o button'); if(mc){var q=mc.closest('.mcq'),a=+q.dataset.a;$$('button',q).forEach(function(b){b.classList.remove('right','wrong')});if(+mc.dataset.j==a){mc.classList.add('right');q.classList.add('done')}else mc.classList.add('wrong');return}
+ var sp=e.target.closest('[data-spin]'); if(sp){var k=sp.dataset.spin,list=SPIN[k]||SPIN.conv,box=$('#spin-'+k);var n;do{n=Math.floor(Math.random()*list.length)}while(n===box._n&&list.length>1);box._n=n;box.innerHTML='<div>'+esc(list[n])+'</div>';return}
+ if(e.target.id=='copymsg'){var m=$('.msg');try{navigator.clipboard.writeText(m.innerText)}catch(x){}e.target.textContent='✓ Copied'}
+});
+(function(){var bar=$('#nbar'),box=$('#notes'),dx,dy,drag=false;bar.onmousedown=function(e){if(e.target.tagName=='BUTTON'||e.target.classList.contains('sw'))return;drag=true;var r=box.getBoundingClientRect();dx=e.clientX-r.left;dy=e.clientY-r.top;e.preventDefault()};document.addEventListener('mousemove',function(e){if(!drag)return;box.style.left=(e.clientX-dx)+'px';box.style.top=(e.clientY-dy)+'px';box.style.right='auto';box.style.bottom='auto'});document.addEventListener('mouseup',function(){drag=false})})();
+render('cover');
+</script></body></html>

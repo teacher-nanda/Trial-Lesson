@@ -183,7 +183,7 @@ document.addEventListener('pointermove',function(e){if(!drag)return;var n=$('#no
 document.addEventListener('pointerup',function(){drag=null})})();
 function toggleNotes(){$('#notes').classList.toggle('show');if($('#notes').classList.contains('show'))$('#noteEd').focus()}
 function savePDF(){saveNote();var o=readNotes();var keys=Object.keys(o).sort();if(!keys.length){alert('No notes to save yet!');return}
- var base=location.href.split('#')[0].split('?')[0];var LESSON=/^https?:/.test(location.href)?base:'https://teacher-nanda.github.io/Trial-Lesson/';
+ var base=location.href.split('#')[0].split('?')[0];var LESSON='https://teacher-nanda.github.io/Trial-Lesson/';
  var cards='';keys.forEach(function(k){var p=k.split('|');cards+='<div class="card"><div class="card-header">'+p[2]+'</div><div class="card-body">'+o[k]+'</div></div>'});
  var today=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
  var css='body{font-family:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;max-width:820px;margin:0 auto;padding:0 0 32px;color:#1C2B3A;background:#fff}'+
@@ -192,7 +192,7 @@ function savePDF(){saveNote();var o=readNotes();var keys=Object.keys(o).sort();i
  '.bigbtn{flex:none;display:inline-block;text-decoration:none;background:#FFD84D;color:#2B1B5E!important;font-weight:800;font-size:1.02rem;padding:9px 18px;border-radius:999px;white-space:nowrap}'+
  '.notes-title{font-family:Georgia,serif;font-size:1.5rem;color:#2B1B5E;margin:16px 28px 12px}.card{border:1px solid #DDD;border-radius:12px;margin:0 28px 16px;overflow:hidden}'+
  '.card-header{background:#2B1B5E;color:#fff;padding:8px 14px;font-weight:700;font-size:.92rem;break-after:avoid-page}.card-body{padding:12px 16px;font-size:1rem;line-height:1.7}[style*="background-color"]{color:#1a1a1a!important}.card-body,.card-body *{color:#1a1a1a}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}@media print{@page{margin:1.2cm}.hero{break-inside:avoid}}';
- var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Notes – Trial Lesson</title><style>'+css+'</style></head><body><div class="hero"><p class="kicker">Conversational English with teacher Nanda</p><h1>Trial Lesson</h1><p class="dt">📅 '+today+'</p><div class="row"><p>Below are the notes from our trial lesson. Click the button to open the lesson slides again.</p><a class="bigbtn" href="'+LESSON+'" target="_blank">▶ Open the lesson</a></div></div><h2 class="notes-title">📝 Notes from class</h2>'+cards+'</body></html>';
+ var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Notes – Trial Lesson</title><style>'+css+'</style></head><body><div class="hero"><p class="kicker">Conversational English with teacher Nanda</p><h1>Trial Lesson</h1><p class="dt">📅 '+today+'</p><div class="row"><p>Below are the notes from our trial lesson. Click the button to open the lesson. On the cover, choose your optional homework.</p><a class="bigbtn" href="'+LESSON+'" target="_blank">▶ Open the lesson</a></div></div><h2 class="notes-title">📝 Notes from class</h2>'+cards+'</body></html>';
  var w=window.open('','_blank');w.document.write(html);w.document.close();setTimeout(function(){w.print()},700)}
 function copyMsg(btn){var t=$('.msg',btn.closest('.slide')).innerText;var done=function(){btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent='📋 Copy the message'},1800)};
  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fallback(t,done)})}else fallback(t,done)}
